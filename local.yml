@@ -1,0 +1,46 @@
+version: '3'
+
+volumes:
+  lakessensor_local_postgres_data: {}
+  lakessensor_local_postgres_data_backups: {}
+
+services:
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/local/django/Dockerfile
+    image: lakessensor_local_django
+    container_name: lakessensor_local_django
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app:z
+    env_file:
+      - ./.envs/.local/.django
+      - ./.envs/.local/.postgres
+    ports:
+      - '8000:8000'
+    command: /start
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/production/postgres/Dockerfile
+    image: lakessensor_production_postgres
+    container_name: lakessensor_local_postgres
+    volumes:
+      - lakessensor_local_postgres_data:/var/lib/postgresql/data
+      - lakessensor_local_postgres_data_backups:/backups
+    env_file:
+      - ./.envs/.local/.postgres
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: lakessensor_frontend
+    container_name: lakessensor_frontend
+    volumes:
+      - ./frontend:/app
+    ports:
+      - '80:80'

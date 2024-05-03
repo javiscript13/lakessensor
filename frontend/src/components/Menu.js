@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, IconButton, Typography, Box, MenuItem, Button, Link, Container } from '@mui/material';
+import { AppBar, Toolbar, IconButton, Typography, Box, Button, Container, Link } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 
 const Menu = () => {
@@ -12,16 +12,16 @@ const Menu = () => {
 
     const pages = [
         {
-            name: "Inicio",
+            name: "Home",
             target: "/"
         },
         {
             name: "El proyecto",
-            target: "/proyecto"
+            target: "/about"
         },
         {
             name: "Datos",
-            target: "/datos"
+            target: "/data"
         },
         {
             name: "Cargar datos",
@@ -42,10 +42,8 @@ const Menu = () => {
                         </Typography>
                     </Box>
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none', justifyContent: 'end' } }}>
-                        <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
-                            <MenuIcon
-                                onClick={handleMenuClick}
-                            />
+                        <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }} onClick={handleMenuClick}>
+                            <MenuIcon />
                         </IconButton>
                     </Box>
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex', justifyContent: 'end' } }}>

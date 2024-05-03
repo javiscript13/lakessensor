@@ -1,6 +1,7 @@
 import React from 'react';
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import Home from './components/Home'
+import Menu from './components/Menu';
+import AppRoutes from './AppRoutes.js'
 
 const theme = createTheme({
   palette: {
@@ -20,7 +21,8 @@ const theme = createTheme({
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <Home />
+      <Menu />
+      <AppRoutes />
     </ThemeProvider>
   );
 }

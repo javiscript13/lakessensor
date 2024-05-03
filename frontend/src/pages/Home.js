@@ -1,10 +1,10 @@
 import React from 'react';
-import Menu from './Menu';
 
 const Home = () => {
   return (
     <div>
-      <Menu />
+      <br /><br /><br /><br />
+      <h1>this is home</h1>
     </div>
   );
 }

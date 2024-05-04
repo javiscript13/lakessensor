@@ -5,6 +5,7 @@ import { SwitchField } from '../components/forms/SwitchField';
 import { SliderField } from '../components/forms/SliderField'
 import { Grid, ToggleButton, Button } from '@mui/material';
 import { ToggleButtonGroupField } from '../components/forms/ToggleButtonGroupField';
+import { postAnalogData } from '../services/apiService';
 
 const gridStyles = {
     paddingTop: 20,
@@ -27,8 +28,13 @@ const DataForm = () => {
         },
     });
 
-    const onSubmit = (data) => {
-        console.log(data);
+    const onSubmit = async (data) => {
+        try {
+            const postDataResponse = await postAnalogData(data);
+            console.log('Post data response:', postDataResponse);
+        } catch (error) {
+            console.error('Error posting data:', error);
+        }
     };
 
     const foreUleMarks = [

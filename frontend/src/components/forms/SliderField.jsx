@@ -6,8 +6,10 @@ export const SliderField = ({
     control,
     setValue,
     label,
+    sx,
     ...props
 }) => {
+    console.log("slider sx", sx);
     const [sliderValue, setSliderValue] = useState(0);
     useEffect(() => {
         if (sliderValue) setValue(name, sliderValue);
@@ -26,6 +28,7 @@ export const SliderField = ({
                         value={sliderValue}
                         onChange={handleChange}
                         setValue={setValue}
+                        sx={{ paddingBottom: 20 }}
                         {...props}
                     />
                 )}

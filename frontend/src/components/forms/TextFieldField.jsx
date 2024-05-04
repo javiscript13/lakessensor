@@ -6,7 +6,7 @@ const itemStyle = {
   margin: '10px',
 }
 
-export const TextFieldField = ({ name, control, label, rules, ...props }) => {
+export const TextFieldField = ({ name, control, label, rules, sx, ...props }) => {
   return (
     <Controller
       name={name}
@@ -17,10 +17,11 @@ export const TextFieldField = ({ name, control, label, rules, ...props }) => {
           onChange={onChange}
           value={value}
           label={label}
-          sx={itemStyle}
+          sx={{ ...itemStyle, ...sx }}
           {...props}
         />
-      )}
+      )
+      }
     />
   )
 }

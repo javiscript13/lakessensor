@@ -8,6 +8,7 @@ export const ToggleButtonGroupField = ({
     setValue,
     label,
     children,
+    sx,
     allowBlank = true,
     ...props
 }) => {
@@ -30,6 +31,7 @@ export const ToggleButtonGroupField = ({
                         value={toggleValue}
                         onChange={handleChange}
                         setValue={setValue}
+                        sx={sx}
                         {...props}
                     >
                         {children}

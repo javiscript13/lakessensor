@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { TextFieldField } from "../components/forms/TextFieldField";
 import { SwitchField } from '../components/forms/SwitchField';
 import { SliderField } from '../components/forms/SliderField'
-import { Grid, ToggleButton } from '@mui/material';
+import { Grid, ToggleButton, Button } from '@mui/material';
 import { ToggleButtonGroupField } from '../components/forms/ToggleButtonGroupField';
 
 const gridStyles = {
@@ -12,6 +12,9 @@ const gridStyles = {
     paddingRight: { xs: 10, lg: 50 },
 };
 
+const gridItem = {
+    paddingBottom: 5,
+};
 
 const DataForm = () => {
     const { handleSubmit, control, setValue, formState: { errors } } = useForm({
@@ -21,7 +24,7 @@ const DataForm = () => {
             location: 'IN',
             foreUleScale: 0,
             secchiDepth: 0,
-        }
+        },
     });
 
     const onSubmit = (data) => {
@@ -117,7 +120,7 @@ const DataForm = () => {
     ];
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form>
             <Grid
                 container
                 alignItems="center"
@@ -144,13 +147,15 @@ const DataForm = () => {
                             message: "Ingrese al menos 5 caractéres"
                         }
                     }}
-                    error={errors?.digitalReading && errors.digitalReading.message}
+                    error={errors?.digitalReading && errors.digitalReading?.message}
                     helperText={errors?.digitalReading?.message}
+                    sx={gridItem}
                 />
                 <SwitchField
                     name={"rainPast24hrs"}
                     control={control}
                     label={"Llovió en las últimas 24hrs"}
+                    sx={gridItem}
                 />
                 <SliderField
                     name="foreUleScale"
@@ -162,6 +167,7 @@ const DataForm = () => {
                     min={1}
                     max={21}
                     marks={foreUleMarks}
+                    sx={gridItem}
                 />
                 <SliderField
                     name="secchiDepth"
@@ -173,6 +179,7 @@ const DataForm = () => {
                     min={1}
                     max={60}
                     marks={secchiMarks}
+                    sx={gridItem}
                 />
                 <ToggleButtonGroupField
                     name="location"
@@ -182,15 +189,18 @@ const DataForm = () => {
                     label="Lugar de la laguna donde se tomó la muestra"
                     exclusive
                     allowBlank={false}
+                    sx={gridItem}
                 >
                     <ToggleButton value="IN" key="in">ADENTRO</ToggleButton>
                     <ToggleButton value="OUT" key="in">AFUERA</ToggleButton>
                 </ToggleButtonGroupField>
-
-                <div className="form-control">
-                    <label></label>
-                    <button type="submit">Login</button>
-                </div>
+                <Button
+                    variant="contained"
+                    onClick={handleSubmit(onSubmit)}
+                    sx={{ marginBottom: 10 }}
+                >
+                    Enviar
+                </Button>
             </Grid>
         </form>);
 }

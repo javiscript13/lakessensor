@@ -5,7 +5,7 @@ const itemStyle = {
     margin: '10px',
 }
 
-export const SwitchField = ({ name, control, label, rules, ...props }) => {
+export const SwitchField = ({ name, control, label, rules, sx, ...props }) => {
     return (
         <Controller
             name={name}
@@ -20,6 +20,7 @@ export const SwitchField = ({ name, control, label, rules, ...props }) => {
                         {...props}
                     />
                 }
+                    sx={sx}
                     label={label}
                 />
             )}

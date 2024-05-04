@@ -9,7 +9,6 @@ export const SliderField = ({
     sx,
     ...props
 }) => {
-    console.log("slider sx", sx);
     const [sliderValue, setSliderValue] = useState(0);
     useEffect(() => {
         if (sliderValue) setValue(name, sliderValue);

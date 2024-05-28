@@ -1,3 +1,6 @@
-from django.shortcuts import render
+from .models import Reading
+from .serializers import ReadingSerializer
+from rest_framework import generics
 
-# Create your views here.
+class ReadingCreate(generics.CreateAPIView):
+    serializer_class = ReadingSerializer

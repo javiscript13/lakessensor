@@ -5,6 +5,20 @@ volumes:
   lakessensor_local_postgres_data_backups: {}
 
 services:
+  mqtt:
+    build:
+      context: .
+      dockerfile: ./compose/local/mqtt/Dockerfile
+    image: lakessensor_local_mqtt
+    container_name: lakessensor_local_mqtt
+    depends_on:
+      - django
+    volumes:
+      - ./mqtt_listener:/app:z
+    env_file:
+      - ./.envs/.local/.mqtt
+    command: /start
+
   django:
     build:
       context: .

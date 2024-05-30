@@ -40,7 +40,7 @@ urlpatterns += [
         SpectacularSwaggerView.as_view(url_name="api-schema"),
         name="api-docs",
     ),
-    path("api/sensor", include('sensorpipeline.urls')),
+    path("api/sensor/", include('sensorpipeline.urls')),
 ]
 
 if settings.DEBUG:

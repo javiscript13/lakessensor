@@ -278,3 +278,8 @@ lakessensor/media/
 .env
 .envs/*
 !.envs/.local/
+
+#local secrets
+.envs/.local/.django
+.envs/.local/.postgres
+.envs/.local/.mqtt

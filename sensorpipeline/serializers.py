@@ -5,4 +5,3 @@ class ReadingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reading
         fields = '__all__'
-        

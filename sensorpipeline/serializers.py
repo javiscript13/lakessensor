@@ -5,3 +5,8 @@ class ReadingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reading
         fields = '__all__'
+
+class AnalogReadingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnalogReading
+        fields = '__all__'

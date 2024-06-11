@@ -15,13 +15,13 @@ def on_message(client, userdata, msg):
     item = {
         "device": 1,
         "session": int(reading[4]),
-        "read_date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "readDate": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "lat": float(reading[1]),
         "long": float(reading[2]),
         "elevation": float(reading[3]),
-        "water_temp": float(reading[5]),
-        "air_temp": float(reading[6]),
-        "air_humidity": float(reading[7]),
+        "waterTemp": float(reading[5]),
+        "airTemp": float(reading[6]),
+        "airHumidity": float(reading[7]),
         "ph": float(reading[8]),
     }
     print(json.dumps(item))

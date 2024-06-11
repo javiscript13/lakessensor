@@ -23,12 +23,13 @@ const DataForm = () => {
             digitalReading: '',
             rainPast24hrs: false,
             location: 'IN',
-            foreUleScale: 0,
+            forelUleScale: 0,
             secchiDepth: 0,
         },
     });
 
     const onSubmit = async (data) => {
+        data.digitalReading = +data.digitalReading;
         try {
             const postDataResponse = await postAnalogData(data);
             console.log('Post data response:', postDataResponse);
@@ -37,7 +38,7 @@ const DataForm = () => {
         }
     };
 
-    const foreUleMarks = [
+    const forelUleMarks = [
         { value: 1, label: "1" },
         { value: 2, label: "2" },
         { value: 3, label: "3" },
@@ -138,20 +139,21 @@ const DataForm = () => {
                     placeholder="Id lectura digital"
                     control={control}
                     label={"Id lectura digital"}
+                    type="number"
                     rules={{
-                        required: "Nombre es obligatorio",
-                        pattern: {
-                            value: /^[a-zA-Záéíóú ]+$/u,
-                            message: "Nombre y apellidos inválidos"
-                        },
+                        required: "Id de lectura es obligatorio",
                         maxLength: {
-                            value: 300,
-                            message: "máximo 300 caracteres"
+                            value: 8,
+                            message: "máximo 8 digitos"
                         },
                         minLength: {
-                            value: 5,
-                            message: "Ingrese al menos 5 caractéres"
-                        }
+                            value: 1,
+                            message: "Ingrese al menos 1 digito"
+                        },
+                        pattern:{
+                            value: /^(0|[1-9]\d*)(\.\d+)?$/,
+                            message: "debe ser un número"
+                        },
                     }}
                     error={errors?.digitalReading && errors.digitalReading?.message}
                     helperText={errors?.digitalReading?.message}
@@ -164,7 +166,7 @@ const DataForm = () => {
                     sx={gridItem}
                 />
                 <SliderField
-                    name="foreUleScale"
+                    name="forelUleScale"
                     control={control}
                     label="Escala Forel-Ule"
                     setValue={setValue}
@@ -172,7 +174,7 @@ const DataForm = () => {
                     shiftStep={3}
                     min={1}
                     max={21}
-                    marks={foreUleMarks}
+                    marks={forelUleMarks}
                     sx={gridItem}
                 />
                 <SliderField
@@ -198,7 +200,7 @@ const DataForm = () => {
                     sx={gridItem}
                 >
                     <ToggleButton value="IN" key="in">ADENTRO</ToggleButton>
-                    <ToggleButton value="OUT" key="in">AFUERA</ToggleButton>
+                    <ToggleButton value="SL" key="sl">AFUERA</ToggleButton>
                 </ToggleButtonGroupField>
                 <Button
                     variant="contained"

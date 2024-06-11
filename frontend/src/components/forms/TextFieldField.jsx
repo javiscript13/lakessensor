@@ -1,4 +1,4 @@
-import { Controller, useForm } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 import { TextField } from '@mui/material';
 
 const itemStyle = {
@@ -6,7 +6,7 @@ const itemStyle = {
   margin: '10px',
 }
 
-export const TextFieldField = ({ name, control, label, rules, sx, ...props }) => {
+export const TextFieldField = ({ name, control, label, rules, sx, type, ...props }) => {
   return (
     <Controller
       name={name}

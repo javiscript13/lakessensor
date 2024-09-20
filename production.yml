@@ -7,6 +7,20 @@ volumes:
   production_django_media: {}
 
 services:
+  mqtt:
+    build:
+      context: .
+      dockerfile: ./compose/production/mqtt/Dockerfile
+    image: lakessensor_production_mqtt
+    container_name: lakessensor_production_mqtt
+    depends_on:
+      - django
+    volumes:
+      - ./mqtt_listener:/app:z
+    env_file:
+      - ./.envs/.production/.mqtt
+    command: /start
+
   django:
     build:
       context: .
@@ -17,7 +31,6 @@ services:
       - production_django_media:/app/lakessensor/media
     depends_on:
       - postgres
-      - redis
     env_file:
       - ./.envs/.production/.django
       - ./.envs/.production/.postgres
@@ -46,9 +59,6 @@ services:
     ports:
       - '0.0.0.0:80:80'
       - '0.0.0.0:443:443'
-
-  redis:
-    image: docker.io/redis:6
 
   nginx:
     build:

@@ -35,6 +35,8 @@ services:
       - ./.envs/.production/.django
       - ./.envs/.production/.postgres
     command: /start
+  ports:
+    - "8000:8000"
 
   postgres:
     build:
@@ -47,18 +49,18 @@ services:
     env_file:
       - ./.envs/.production/.postgres
 
-  traefik:
-    build:
-      context: .
-      dockerfile: ./compose/production/traefik/Dockerfile
-    image: lakessensor_production_traefik
-    depends_on:
-      - django
-    volumes:
-      - production_traefik:/etc/traefik/acme
-    ports:
-      - '0.0.0.0:80:80'
-      - '0.0.0.0:443:443'
+#  traefik:
+#    build:
+#      context: .
+#      dockerfile: ./compose/production/traefik/Dockerfile
+#    image: lakessensor_production_traefik
+#    depends_on:
+#      - django
+#    volumes:
+#      - production_traefik:/etc/traefik/acme
+#    ports:
+#      - '0.0.0.0:80:80'
+#      - '0.0.0.0:443:443'
 
   nginx:
     build:
@@ -69,3 +71,14 @@ services:
       - django
     volumes:
       - production_django_media:/usr/share/nginx/media:ro
+  
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: lakessensor_frontend
+    container_name: lakessensor_frontend
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"

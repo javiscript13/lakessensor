@@ -22,7 +22,7 @@ const DataForm = () => {
         defaultValues: {
             digitalReading: '',
             rainPast24hrs: false,
-            location: 'IN',
+            readingPlace: 'IN',
             forelUleScale: 0,
             secchiDepth: 0,
         },
@@ -190,7 +190,7 @@ const DataForm = () => {
                     sx={gridItem}
                 />
                 <ToggleButtonGroupField
-                    name="location"
+                    name="readingPlace"
                     value="IN"
                     control={control}
                     setValue={setValue}

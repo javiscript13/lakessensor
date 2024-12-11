@@ -308,7 +308,11 @@ REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': (
         'djangorestframework_camel_case.parser.CamelCaseJSONParser',
         'rest_framework.parsers.FormParser',
-        'rest_framework.parsers.MultiPartParser',    ),
+        'rest_framework.parsers.MultiPartParser',    
+    ),
+    'JSON_UNDERSCOREIZE': {
+        'no_underscore_before_number': True,
+    },
 }
 
 # django-cors-headers - https://github.com/adamchainz/django-cors-headers#setup

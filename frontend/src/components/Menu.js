@@ -26,6 +26,14 @@ const Menu = () => {
         {
             name: "Cargar datos",
             target: "/form"
+        },
+        {
+            name: "Recursos",
+            target: "/ressources"
+        },
+        {
+            name: "Contacto",
+            target: "/contact"
         }
     ]
 

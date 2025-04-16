@@ -12,7 +12,8 @@ class Device(models.Model):
     model_name = models.CharField(max_length=25)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
+        related_name="devices"
     )
     primary_lake = models.CharField(max_length=300)
 

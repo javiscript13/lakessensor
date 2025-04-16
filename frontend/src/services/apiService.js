@@ -8,3 +8,9 @@ export const postAnalogData = async (analogData) => {
         throw new Error('Error posting data:', error);
     }
 };
+
+// Login with JWT
+export const loginUser = async (email, password) => {
+    const response = await axiosInstance.post("/token/", { email, password });
+    return response.data; 
+};

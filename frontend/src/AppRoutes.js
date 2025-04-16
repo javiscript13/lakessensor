@@ -1,5 +1,6 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
+import PrivateRoute from "./components/PrivateRoute";
 
 const Home = React.lazy(() => import('./pages/Home'));
 const About = React.lazy(() => import('./pages/About'));
@@ -15,7 +16,11 @@ const AppRoutes = () => {
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/data" element={<Data />} />
-            <Route path="/form" element={<DataForm />} />
+            <Route path="/form" element={
+                <PrivateRoute>
+                    <DataForm/>
+                </PrivateRoute>
+            }/>
             <Route path="/ressources" element={<Ressources />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<NoMatch />} />

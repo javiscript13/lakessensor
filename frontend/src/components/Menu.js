@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { AppBar, Toolbar, IconButton, Typography, Box, Button, Container, Link } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import { useAuth } from '../context/AuthContext';
+import LogoutButton from './LogoutButton';
 
 const Menu = () => {
 
@@ -35,7 +37,9 @@ const Menu = () => {
             name: "Contacto",
             target: "/contact"
         }
-    ]
+    ];
+
+    const { isAuthenticated, logout } = useAuth();
 
     return (
         <AppBar position="sticky">
@@ -64,6 +68,7 @@ const Menu = () => {
                                 {page.name}
                             </Button>
                         ))}
+                        {isAuthenticated &&  <LogoutButton/>}
                     </Box>
                 </Container>
                 {toggleMenu && (
@@ -78,6 +83,7 @@ const Menu = () => {
                                     {page.name}
                                 </Button>
                             ))}
+                            {isAuthenticated &&  <LogoutButton/>}
                         </Box>
                     </Container>
                 )}

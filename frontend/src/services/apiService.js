@@ -4,11 +4,7 @@ const token = localStorage.getItem("access");
 
 export const postAnalogData = async (analogData) => {
     try {
-        const response = await axiosInstance.post('/sensor/analog', analogData, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        const response = await axiosInstance.post('/sensor/analog', analogData);
         return response.data;
     } catch (error) {
         throw new Error('Error posting data:', error);
@@ -23,11 +19,7 @@ export const loginUser = async (email, password) => {
 
 export const getUserReadings = async () => {
     try {
-        const response = await axiosInstance.get('/sensor/user-readings', {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        const response = await axiosInstance.get('/sensor/user-readings');
         return response.data;
     } catch (error) {
         throw new Error('Error getting user readings', error);

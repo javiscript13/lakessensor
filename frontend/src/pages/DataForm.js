@@ -161,7 +161,6 @@ const DataForm = () => {
                     error={!!errors.digitalReading}
                     helperText={errors.digitalReading?.message}
                     rules={{ required: "La lectura digital es obligatoria" }}
-                    sx={gridItem}
                 />
                 <SwitchField
                     name={"rainPast24hrs"}

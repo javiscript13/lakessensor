@@ -44,7 +44,7 @@ class AnalogReading(models.Model):
         SHORELINE = "SL", _("Orilla del lago")
 
     id = models.AutoField(primary_key=True, editable=False)
-    digital_reading = models.ForeignKey(Reading, on_delete=models.CASCADE)
+    digital_reading = models.OneToOneField(Reading, on_delete=models.CASCADE)
     rain_past24hrs = models.BooleanField(default=False)
     reading_place = models.CharField(
         max_length=2,

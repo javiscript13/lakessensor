@@ -12,4 +12,10 @@ class AnalogReadingView(generics.ListCreateAPIView,
     serializer_class = AnalogReadingSerializer
     queryset = AnalogReading.objects.all()
     
+class UserReadings(generics.ListAPIView):
+    serializer_class = ReadingSerializer
+    permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        return Reading.objects.filter(device__user=self.request.user)
+    

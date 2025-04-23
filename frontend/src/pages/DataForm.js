@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from "react-hook-form";
-import { TextFieldField } from "../components/forms/TextFieldField";
+import { SelectField } from "../components/forms/SelectField";
 import { SwitchField } from '../components/forms/SwitchField';
 import { SliderField } from '../components/forms/SliderField'
 import { Grid, ToggleButton, Button } from '@mui/material';
 import { ToggleButtonGroupField } from '../components/forms/ToggleButtonGroupField';
-import { postAnalogData } from '../services/apiService';
+import { postAnalogData, getUserReadings } from '../services/apiService';
 
 const gridStyles = {
     paddingTop: 20,
@@ -27,6 +27,25 @@ const DataForm = () => {
             secchiDepth: 0,
         },
     });
+
+    const [readings, setReadings] = useState([]);
+
+    useEffect(() => {
+        const fetchReadings = async () => {
+            try {
+                const data = await getUserReadings();
+                const options = data.map((reading) => ({
+                    value: reading.id,
+                    label: `Dispositivo ${reading.deviceName} - sesión ${reading.session}`, 
+                  }));
+                setReadings(options);
+            } catch (err) {
+                console.error("User readings could not be loaded", err);
+            } 
+        };
+
+        fetchReadings();
+    }, []);
 
     const onSubmit = async (data) => {
         data.digitalReading = +data.digitalReading;
@@ -134,29 +153,14 @@ const DataForm = () => {
                 direction="column"
                 sx={gridStyles}
             >
-                <TextFieldField
+                <SelectField
                     name="digitalReading"
-                    placeholder="Id lectura digital"
+                    label="Lectura digital"
                     control={control}
-                    label={"Id lectura digital"}
-                    type="number"
-                    rules={{
-                        required: "Id de lectura es obligatorio",
-                        maxLength: {
-                            value: 8,
-                            message: "máximo 8 digitos"
-                        },
-                        minLength: {
-                            value: 1,
-                            message: "Ingrese al menos 1 digito"
-                        },
-                        pattern:{
-                            value: /^(0|[1-9]\d*)(\.\d+)?$/,
-                            message: "debe ser un número"
-                        },
-                    }}
-                    error={errors?.digitalReading && errors.digitalReading?.message}
-                    helperText={errors?.digitalReading?.message}
+                    options={readings}
+                    error={!!errors.digitalReading}
+                    helperText={errors.digitalReading?.message}
+                    rules={{ required: "La lectura digital es obligatoria" }}
                     sx={gridItem}
                 />
                 <SwitchField

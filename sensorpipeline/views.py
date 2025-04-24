@@ -19,3 +19,6 @@ class UserReadings(generics.ListAPIView):
     def get_queryset(self):
         return Reading.objects.filter(device__user=self.request.user)
     
+class AllReadings(generics.ListAPIView):
+    queryset = Reading.objects.all().distinct("session")
+    serializer_class = ReadingSerializer

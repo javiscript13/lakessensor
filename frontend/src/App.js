@@ -1,7 +1,8 @@
 import React from 'react';
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import 'leaflet/dist/leaflet.css'; 
 import Menu from './components/Menu';
-import AppRoutes from './AppRoutes.js'
+import AppRoutes from './AppRoutes.js';
 
 const theme = createTheme({
   palette: {

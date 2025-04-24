@@ -25,3 +25,12 @@ export const getUserReadings = async () => {
         throw new Error('Error getting user readings', error);
     }
 };
+
+export const getAllReadings = async () => {
+    try {
+        const response = await axiosInstance.get('/sensor/all-readings');
+        return response.data;
+    } catch (error) {
+        throw new Error('Error getting all readings', error)
+    }
+};

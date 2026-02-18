@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { SelectField } from "../components/forms/SelectField";
 import { SwitchField } from '../components/forms/SwitchField';
 import { SliderField } from '../components/forms/SliderField'
-import { Grid, ToggleButton, Button } from '@mui/material';
+import { Grid, ToggleButton, Button, Snackbar } from '@mui/material';
 import { ToggleButtonGroupField } from '../components/forms/ToggleButtonGroupField';
 import { postAnalogData, getUserReadings } from '../services/apiService';
 
@@ -18,7 +18,7 @@ const gridItem = {
 };
 
 const DataForm = () => {
-    const { handleSubmit, control, setValue, formState: { errors } } = useForm({
+    const { handleSubmit, control, setValue, formState: { errors }, reset } = useForm({
         defaultValues: {
             digitalReading: '',
             rainPast24hrs: false,
@@ -29,6 +29,7 @@ const DataForm = () => {
     });
 
     const [readings, setReadings] = useState([]);
+    const [savingResult, setSavingResult] = useState("");
 
     useEffect(() => {
         const fetchReadings = async () => {
@@ -43,17 +44,26 @@ const DataForm = () => {
                 console.error("User readings could not be loaded", err);
             } 
         };
-
         fetchReadings();
     }, []);
 
     const onSubmit = async (data) => {
         data.digitalReading = +data.digitalReading;
         try {
+            setSavingResult("Guardando");
             const postDataResponse = await postAnalogData(data);
             console.log('Post data response:', postDataResponse);
+            setSavingResult("Guardado");
+            reset({
+                digitalReading: '',
+                rainPast24hrs: false,
+                readingPlace: 'IN',
+                forelUleScale: 0,
+                secchiDepth: 0,
+            });
         } catch (error) {
             console.error('Error posting data:', error);
+            setSavingResult("Error al guardar, intenta de nuevo.");
         }
     };
 
@@ -212,6 +222,13 @@ const DataForm = () => {
                 >
                     Enviar
                 </Button>
+                <Snackbar
+                    open = {!!savingResult && savingResult.length > 0}
+                    message = {savingResult}
+                    autoHideDuration = {1200}
+                    onClose = {() => setSavingResult("")}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                />
             </Grid>
         </form>);
 }

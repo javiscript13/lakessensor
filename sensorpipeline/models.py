@@ -29,10 +29,10 @@ class Reading(models.Model):
     lat = models.DecimalField(max_digits=9, decimal_places=6)
     long = models.DecimalField(max_digits=9, decimal_places=6)
     elevation = models.DecimalField(max_digits=8, decimal_places=4)
-    water_temp = models.DecimalField(max_digits=3, decimal_places=1)
-    air_temp = models.DecimalField(max_digits=3, decimal_places=1)
-    air_humidity = models.DecimalField(max_digits=3, decimal_places=1)
-    ph = models.DecimalField(max_digits=3, decimal_places=1)
+    water_temp = models.DecimalField(max_digits=4, decimal_places=2)
+    air_temp = models.DecimalField(max_digits=4, decimal_places=2)
+    air_humidity = models.DecimalField(max_digits=4, decimal_places=2)
+    ph = models.DecimalField(max_digits=4, decimal_places=2)
 
     def __str__(self):
         return f"{self.id}"

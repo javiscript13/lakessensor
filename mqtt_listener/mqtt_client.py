@@ -13,7 +13,7 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     reading = msg.payload.decode("UTF-8").split(",")
     item = {
-        "device": 1,
+        "device": reading[9],
         "session": int(reading[4]),
         "readDate": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "lat": float(reading[1]),

@@ -8,26 +8,34 @@ from datetime import timedelta
 
 class ReadingCreate(generics.CreateAPIView):
     serializer_class = ReadingSerializer
-    session_max_time = 15 #in minutes
+    session_max_time = 2 #in minutes
 
     def create(self, request, *args, **kwargs):
         device = Device.objects.get(mac=request.data["device"])
+        
+        data = request.data.copy()
+        data['device'] = device.id
+        data['read_date'] = timezone.now().isoformat()
+        data['device_session'] = request.data['session'] 
+        
 
-        passed_session_time = timezone.now() - timedelta(minutes=self.session_max_time)
-
+        last_accepted_time = timezone.now() - timedelta(minutes=self.session_max_time)
         last_reading = Reading.objects.filter(
             device=device,
-        ).order_by('-read_date').first()
-
-        if last_reading and last_reading.read_date >= passed_session_time:
+        ).order_by('-id').first()
+        first_session_reading_of_last = None
+        if last_reading:
+            first_session_reading_of_last = Reading.objects.filter(
+                reading_session = last_reading.reading_session
+            ).order_by('id').first()
+        if (first_session_reading_of_last and 
+            first_session_reading_of_last.read_date >= last_accepted_time):
             session = last_reading.reading_session
         else:
             session = ReadingSession.objects.create(device=device)
-
-        data = request.data.copy()
-        data['device'] = device.id
-        data['device_session'] = request.data['session'] 
+        
         data['reading_session'] = session.id
+
         serializer = self.get_serializer(data=data)
         if not serializer.is_valid():
             print("Serializer errors ", serializer.errors)

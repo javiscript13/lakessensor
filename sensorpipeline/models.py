@@ -20,11 +20,17 @@ class Device(models.Model):
     def __str__(self):
         return f"{self.mac}"
 
+class ReadingSession(models.Model):
+    id = models.AutoField(primary_key=True, editable=False)
+    device = models.ForeignKey(Device, on_delete=models.CASCADE)
 
 class Reading(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
-    session = models.PositiveIntegerField()
+    reading_session = models.ForeignKey(
+        ReadingSession, on_delete=models.CASCADE, related_name='related_readings'
+    )
+    device_session = models.PositiveIntegerField()
     read_date = models.DateTimeField("date read")
     lat = models.DecimalField(max_digits=9, decimal_places=6)
     long = models.DecimalField(max_digits=9, decimal_places=6)
@@ -36,7 +42,6 @@ class Reading(models.Model):
 
     def __str__(self):
         return f"{self.id}"
-
 
 class AnalogReading(models.Model):
     class ReadingChoices(models.TextChoices):

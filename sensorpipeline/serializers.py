@@ -9,6 +9,8 @@ class AnalogReadingSerializer(serializers.ModelSerializer):
 class ReadingSerializer(serializers.ModelSerializer):
     analog_reading = AnalogReadingSerializer(read_only=True)
     device_name = serializers.CharField(source="device.nickname", read_only=True)
+    session = serializers.IntegerField(source="device_session")
+
     class Meta:
         model = Reading
         fields = '__all__'

@@ -1,19 +1,36 @@
-from .models import Reading, AnalogReading, Device
+from .models import Reading, AnalogReading, Device, ReadingSession
 from .serializers import ReadingSerializer, AnalogReadingSerializer
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
+from django.utils import timezone
+from datetime import timedelta
 
 class ReadingCreate(generics.CreateAPIView):
     serializer_class = ReadingSerializer
+    session_max_time = 15 #in minutes
 
     def create(self, request, *args, **kwargs):
         device = Device.objects.get(mac=request.data["device"])
+
+        passed_session_time = timezone.now() - timedelta(minutes=self.session_max_time)
+
+        last_reading = Reading.objects.filter(
+            device=device,
+        ).order_by('-read_date').first()
+
+        if last_reading and last_reading.read_date >= passed_session_time:
+            session = last_reading.reading_session
+        else:
+            session = ReadingSession.objects.create(device=device)
+
         data = request.data.copy()
         data['device'] = device.id
+        data['device_session'] = request.data['session'] 
+        data['reading_session'] = session.id
         serializer = self.get_serializer(data=data)
         if not serializer.is_valid():
+            print("Serializer errors ", serializer.errors)
             return Response(serializer.errors, status=400)
         try:
             self.perform_create(serializer)

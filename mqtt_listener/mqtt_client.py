@@ -1,6 +1,7 @@
 import json
 import os
 import datetime
+import time
 
 import paho.mqtt.client as mqtt
 import requests
@@ -26,11 +27,17 @@ def on_message(client, userdata, msg):
     }
     print(json.dumps(item))
     endpoint = os.environ["READINGS_ENDPOINT"]
-    try:
-        response = requests.post(endpoint, json=item, timeout=5)
-        print("Status Code", response.status_code)  # noqa: T201
-    except requests.Timeout as e:
-        print("Django server not available", e)  # noqa: T201
+    for attempt in range(3):
+        try:
+            response = requests.post(endpoint, json=item, timeout=5)
+            print("Status Code", response.status_code)  # noqa: T201
+            break
+        except (requests.Timeout, requests.exceptions.ConnectionError) as e:
+            print(f"Attempt {attempt+1} failed: {e}")
+            if attempt < 2: 
+                time.sleep(3 ** attempt) 
+    else:
+        print("Django server not available after 3 attempts", e) 
 
 
 def disconnect(self):

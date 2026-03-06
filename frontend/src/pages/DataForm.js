@@ -37,7 +37,7 @@ const DataForm = () => {
                 const data = await getUserReadings();
                 const options = data.map((reading) => ({
                     value: reading.id,
-                    label: `Dispositivo ${reading.deviceName} - sesión ${new Date(reading.oldestReadingTime).toLocaleString('es-GT')}`, 
+                    label: `Dispositivo ${reading.deviceName} - sesión ${new Date(reading.oldestReadingTime).toLocaleString('es-GT')} - (${(reading.analogReading?'con lectura análoga':'sin lectura análoga')})`, 
                   }));
                 setReadings(options);
             } catch (err) {

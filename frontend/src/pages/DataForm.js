@@ -37,7 +37,7 @@ const DataForm = () => {
                 const data = await getUserReadings();
                 const options = data.map((reading) => ({
                     value: reading.id,
-                    label: `Dispositivo ${reading.deviceName} - sesión ${reading.session}`, 
+                    label: `Dispositivo ${reading.deviceName} - sesión ${new Date(reading.oldestReadingTime).toLocaleString('es-GT')}`, 
                   }));
                 setReadings(options);
             } catch (err) {

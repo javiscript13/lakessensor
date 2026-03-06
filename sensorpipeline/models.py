@@ -24,6 +24,9 @@ class ReadingSession(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f"{self.id}"
+
 class Reading(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
@@ -50,7 +53,7 @@ class AnalogReading(models.Model):
 
     id = models.AutoField(primary_key=True, editable=False)
     digital_reading = models.OneToOneField(
-        Reading, on_delete=models.CASCADE, related_name='analog_reading'
+        ReadingSession, on_delete=models.CASCADE, related_name='analog_reading'
     )
     rain_past24hrs = models.BooleanField(default=False)
     reading_place = models.CharField(

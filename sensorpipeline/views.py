@@ -1,5 +1,5 @@
 from .models import Reading, AnalogReading, Device, ReadingSession
-from .serializers import ReadingSerializer, AnalogReadingSerializer
+from .serializers import ReadingSerializer, AnalogReadingSerializer, ReadingSessionSerializer
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -8,7 +8,7 @@ from datetime import timedelta
 
 class ReadingCreate(generics.CreateAPIView):
     serializer_class = ReadingSerializer
-    session_max_time = 2 #in minutes
+    session_max_time = 5 #in minutes
 
     def create(self, request, *args, **kwargs):
         device = Device.objects.get(mac=request.data["device"])
@@ -57,12 +57,12 @@ class AnalogReadingView(generics.ListCreateAPIView,
     queryset = AnalogReading.objects.all()
     
 class UserReadings(generics.ListAPIView):
-    serializer_class = ReadingSerializer
+    serializer_class = ReadingSessionSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Reading.objects.filter(device__user=self.request.user)
+        return ReadingSession.objects.filter(device__user=self.request.user)
     
 class AllReadings(generics.ListAPIView):
-    queryset = Reading.objects.all().distinct("session")
-    serializer_class = ReadingSerializer
+    queryset = ReadingSession.objects.all()
+    serializer_class = ReadingSessionSerializer

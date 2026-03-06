@@ -31,19 +31,21 @@ const DataForm = () => {
     const [readings, setReadings] = useState([]);
     const [savingResult, setSavingResult] = useState("");
 
+    const fetchReadings = async () => {
+        try {
+            const data = await getUserReadings();
+            const options = data.map((reading) => ({
+                value: reading.id,
+                label: `Dispositivo ${reading.deviceName} - sesión ${new Date(reading.oldestReadingTime).toLocaleString('es-GT')} - (${(reading.analogReading?'con lectura análoga':'sin lectura análoga')})`, 
+              }));
+            setReadings(options);
+        } catch (err) {
+            console.error("User readings could not be loaded", err);
+        } 
+    };
+
+
     useEffect(() => {
-        const fetchReadings = async () => {
-            try {
-                const data = await getUserReadings();
-                const options = data.map((reading) => ({
-                    value: reading.id,
-                    label: `Dispositivo ${reading.deviceName} - sesión ${new Date(reading.oldestReadingTime).toLocaleString('es-GT')} - (${(reading.analogReading?'con lectura análoga':'sin lectura análoga')})`, 
-                  }));
-                setReadings(options);
-            } catch (err) {
-                console.error("User readings could not be loaded", err);
-            } 
-        };
         fetchReadings();
     }, []);
 
@@ -61,6 +63,7 @@ const DataForm = () => {
                 forelUleScale: 0,
                 secchiDepth: 0,
             });
+            fetchReadings();
         } catch (error) {
             console.error('Error posting data:', error);
             setSavingResult("Error al guardar, intenta de nuevo.");

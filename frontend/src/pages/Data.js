@@ -112,9 +112,11 @@ const Data = () => {
         fetchAllReadings();
     }, []);
 
+    const bounds = sessions.map(s => [s.avgLat, s.avgLong]);
+
     return (
         <div style={{ height: '500px' }}>
-            <Map center={[15, -90.5]} zoom={9}>
+            <Map center={[15, -90.5]} zoom={9} bounds={bounds.length > 0 ? bounds : null}>
                 {sessions.map(session => (
                     <SessionMarker key={session.id} session={session} />
                 ))}

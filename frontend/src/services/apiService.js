@@ -11,6 +11,15 @@ export const postAnalogData = async (analogData) => {
     }
 };
 
+export const patchAnalogData = async (id, analogData) => {
+    try {
+        const response = await axiosInstance.patch(`/sensor/analog/${id}`, analogData);
+        return response.data;
+    } catch (error) {
+        throw new Error('Error patching data:', error);
+    }
+};
+
 // Login with JWT
 export const loginUser = async (email, password) => {
     const response = await axiosInstance.post("/token/", { email, password });

@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useForm } from "react-hook-form";
+import React, { useEffect, useRef, useState } from 'react';
+import { useForm, useWatch } from "react-hook-form";
 import { SelectField } from "../components/forms/SelectField";
 import { SwitchField } from '../components/forms/SwitchField';
 import { SliderField } from '../components/forms/SliderField'
-import { Grid, ToggleButton, Button, Snackbar } from '@mui/material';
+import {
+    Grid, ToggleButton, Button, Snackbar,
+    Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
+} from '@mui/material';
 import { ToggleButtonGroupField } from '../components/forms/ToggleButtonGroupField';
-import { postAnalogData, getUserReadings } from '../services/apiService';
+import { postAnalogData, patchAnalogData, getUserReadings } from '../services/apiService';
 
 const gridStyles = {
     paddingTop: 20,
@@ -17,59 +20,119 @@ const gridItem = {
     paddingBottom: 5,
 };
 
+const DEFAULT_VALUES = {
+    digitalReading: '',
+    rainPast24hrs: false,
+    readingPlace: 'IN',
+    forelUleScale: 0,
+    secchiDepth: 0,
+};
+
+const DEFAULT_INITIALS = {
+    forelUleScale: 0,
+    secchiDepth: 0,
+    readingPlace: 'IN',
+};
+
 const DataForm = () => {
     const { handleSubmit, control, setValue, formState: { errors }, reset } = useForm({
-        defaultValues: {
-            digitalReading: '',
-            rainPast24hrs: false,
-            readingPlace: 'IN',
-            forelUleScale: 0,
-            secchiDepth: 0,
-        },
+        defaultValues: DEFAULT_VALUES,
     });
 
     const [readings, setReadings] = useState([]);
+    const readingsDataRef = useRef([]);
     const [savingResult, setSavingResult] = useState("");
     const [formKey, setFormKey] = useState(0);
+    const [selectedReading, setSelectedReading] = useState(null);
+    const [analogInitials, setAnalogInitials] = useState(DEFAULT_INITIALS);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [pendingData, setPendingData] = useState(null);
+
+    const digitalReadingValue = useWatch({ control, name: 'digitalReading' });
 
     const fetchReadings = async () => {
         try {
             const data = await getUserReadings();
+            readingsDataRef.current = data;
             const options = data.map((reading) => ({
                 value: reading.id,
-                label: `Dispositivo ${reading.deviceName} - sesión ${new Date(reading.oldestReadingTime).toLocaleString('es-GT')} - (${(reading.analogReading?'con lectura análoga':'sin lectura análoga')})`, 
-              }));
+                label: `Dispositivo ${reading.deviceName} - sesión ${new Date(reading.oldestReadingTime).toLocaleString('es-GT')} - (${(reading.analogReading ? 'con lectura análoga' : 'sin lectura análoga')})`,
+            }));
             setReadings(options);
         } catch (err) {
             console.error("User readings could not be loaded", err);
-        } 
+        }
     };
-
 
     useEffect(() => {
         fetchReadings();
     }, []);
 
-    const onSubmit = async (data) => {
-        data.digitalReading = +data.digitalReading;
-        try {
-            setSavingResult("Guardando");
-            const postDataResponse = await postAnalogData(data);
-            console.log('Post data response:', postDataResponse);
-            setSavingResult("Guardado");
+    useEffect(() => {
+        const reading = readingsDataRef.current.find(r => r.id === digitalReadingValue);
+        setSelectedReading(reading || null);
+        if (reading?.analogReading) {
+            const ar = reading.analogReading;
+            setAnalogInitials({
+                forelUleScale: ar.forelUleScale,
+                secchiDepth: ar.secchiDepth,
+                readingPlace: ar.readingPlace,
+            });
             reset({
-                digitalReading: '',
-                rainPast24hrs: false,
-                readingPlace: 'IN',
-                forelUleScale: 0,
-                secchiDepth: 0,
+                digitalReading: reading.id,
+                rainPast24hrs: ar.rainPast24hrs,
+                readingPlace: ar.readingPlace,
+                forelUleScale: ar.forelUleScale,
+                secchiDepth: ar.secchiDepth,
             });
             setFormKey(k => k + 1);
+        }
+    }, [digitalReadingValue]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const clearForm = () => {
+        setSelectedReading(null);
+        setAnalogInitials(DEFAULT_INITIALS);
+        reset(DEFAULT_VALUES);
+        setFormKey(k => k + 1);
+    };
+
+    const saveData = async (data) => {
+        try {
+            setSavingResult("Guardando");
+            if (selectedReading?.analogReading) {
+                await patchAnalogData(selectedReading.analogReading.id, data);
+            } else {
+                await postAnalogData(data);
+            }
+            setSavingResult("Guardado");
+            clearForm();
             fetchReadings();
         } catch (error) {
-            console.error('Error posting data:', error);
+            console.error('Error saving data:', error);
             setSavingResult("Error al guardar, intenta de nuevo.");
         }
+    };
+
+    const onSubmit = async (data) => {
+        data.digitalReading = +data.digitalReading;
+        if (selectedReading?.analogReading) {
+            setPendingData(data);
+            setConfirmOpen(true);
+        } else {
+            await saveData(data);
+        }
+    };
+
+    const handleConfirmYes = async () => {
+        setConfirmOpen(false);
+        await saveData(pendingData);
+        setPendingData(null);
+    };
+
+    const handleConfirmNo = () => {
+        setConfirmOpen(false);
+        setPendingData(null);
+        clearForm();
     };
 
     const forelUleMarks = [
@@ -94,7 +157,6 @@ const DataForm = () => {
         { value: 19, label: "19" },
         { value: 20, label: "20" },
         { value: 21, label: "21" },
-
     ];
 
     const secchiMarks = [
@@ -189,6 +251,7 @@ const DataForm = () => {
                     control={control}
                     label="Escala Forel-Ule"
                     setValue={setValue}
+                    initialValue={analogInitials.forelUleScale}
                     step={1}
                     shiftStep={3}
                     min={1}
@@ -202,6 +265,7 @@ const DataForm = () => {
                     control={control}
                     label="Discho Secchi"
                     setValue={setValue}
+                    initialValue={analogInitials.secchiDepth}
                     shiftStep={5}
                     step={1}
                     min={1}
@@ -212,7 +276,7 @@ const DataForm = () => {
                 <ToggleButtonGroupField
                     key={`readingPlace-${formKey}`}
                     name="readingPlace"
-                    value="IN"
+                    value={analogInitials.readingPlace}
                     control={control}
                     setValue={setValue}
                     label="Lugar de la laguna donde se tomó la muestra"
@@ -231,14 +295,27 @@ const DataForm = () => {
                     Enviar
                 </Button>
                 <Snackbar
-                    open = {!!savingResult && savingResult.length > 0}
-                    message = {savingResult}
-                    autoHideDuration = {1200}
-                    onClose = {() => setSavingResult("")}
+                    open={!!savingResult && savingResult.length > 0}
+                    message={savingResult}
+                    autoHideDuration={1200}
+                    onClose={() => setSavingResult("")}
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 />
             </Grid>
-        </form>);
+            <Dialog open={confirmOpen}>
+                <DialogTitle>Confirmar modificación</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Esto modificará la lectura análoga guardada, ¿desea continuar?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleConfirmNo}>No</Button>
+                    <Button onClick={handleConfirmYes} variant="contained">Sí</Button>
+                </DialogActions>
+            </Dialog>
+        </form>
+    );
 }
 
 export default DataForm;

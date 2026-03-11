@@ -7,9 +7,10 @@ export const SliderField = ({
     setValue,
     label,
     sx,
+    initialValue = 0,
     ...props
 }) => {
-    const [sliderValue, setSliderValue] = useState(0);
+    const [sliderValue, setSliderValue] = useState(initialValue);
     useEffect(() => {
         if (sliderValue) setValue(name, sliderValue);
     }, [name, setValue, sliderValue]);

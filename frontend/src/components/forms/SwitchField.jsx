@@ -15,7 +15,7 @@ export const SwitchField = ({ name, control, label, rules, sx, ...props }) => {
                 <FormControlLabel control={
                     <Switch
                         onChange={onChange}
-                        value={value}
+                        checked={!!value}
                         sx={itemStyle}
                         {...props}
                     />

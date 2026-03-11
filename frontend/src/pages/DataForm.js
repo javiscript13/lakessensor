@@ -30,6 +30,7 @@ const DataForm = () => {
 
     const [readings, setReadings] = useState([]);
     const [savingResult, setSavingResult] = useState("");
+    const [formKey, setFormKey] = useState(0);
 
     const fetchReadings = async () => {
         try {
@@ -63,6 +64,7 @@ const DataForm = () => {
                 forelUleScale: 0,
                 secchiDepth: 0,
             });
+            setFormKey(k => k + 1);
             fetchReadings();
         } catch (error) {
             console.error('Error posting data:', error);
@@ -182,6 +184,7 @@ const DataForm = () => {
                     sx={gridItem}
                 />
                 <SliderField
+                    key={`forelUleScale-${formKey}`}
                     name="forelUleScale"
                     control={control}
                     label="Escala Forel-Ule"
@@ -194,6 +197,7 @@ const DataForm = () => {
                     sx={gridItem}
                 />
                 <SliderField
+                    key={`secchiDepth-${formKey}`}
                     name="secchiDepth"
                     control={control}
                     label="Discho Secchi"
@@ -206,6 +210,7 @@ const DataForm = () => {
                     sx={gridItem}
                 />
                 <ToggleButtonGroupField
+                    key={`readingPlace-${formKey}`}
                     name="readingPlace"
                     value="IN"
                     control={control}

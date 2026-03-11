@@ -61,8 +61,10 @@ class UserReadings(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return ReadingSession.objects.filter(device__user=self.request.user)
-    
+        return ReadingSession.objects.filter(
+            device__user=self.request.user
+        ).prefetch_related('related_readings')
+
 class AllReadings(generics.ListAPIView):
-    queryset = ReadingSession.objects.all()
+    queryset = ReadingSession.objects.all().prefetch_related('related_readings')
     serializer_class = ReadingSessionSerializer

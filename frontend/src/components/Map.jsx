@@ -10,7 +10,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-const Map = ({ markers = [], center = [0, 0], zoom = 2 }) => {
+const Map = ({ markers = [], center = [0, 0], zoom = 2, children }) => {
   return (
     <MapContainer center={center} zoom={zoom} style={{ height: '100%', width: '100%' }}>
       <TileLayer
@@ -24,6 +24,7 @@ const Map = ({ markers = [], center = [0, 0], zoom = 2 }) => {
           </Popup>
         </Marker>
       ))}
+      {children}
     </MapContainer>
   );
 };

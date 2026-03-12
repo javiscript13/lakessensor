@@ -49,6 +49,13 @@ const DataForm = () => {
     const [pendingData, setPendingData] = useState(null);
 
     const digitalReadingValue = useWatch({ control, name: 'digitalReading' });
+    const digitalReadingRef = useRef(null);
+
+    useEffect(() => {
+        if (errors.digitalReading && digitalReadingRef.current) {
+            digitalReadingRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, [errors.digitalReading]);
 
     const fetchReadings = async () => {
         try {
@@ -107,6 +114,7 @@ const DataForm = () => {
             setSavingResult("Guardado");
             clearForm();
             fetchReadings();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (error) {
             console.error('Error saving data:', error);
             setSavingResult("Error al guardar, intenta de nuevo.");
@@ -133,6 +141,7 @@ const DataForm = () => {
         setConfirmOpen(false);
         setPendingData(null);
         clearForm();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const forelUleMarks = [
@@ -230,6 +239,7 @@ const DataForm = () => {
                 direction="column"
                 sx={gridStyles}
             >
+                <div ref={digitalReadingRef} style={{ width: '100%' }}>
                 <SelectField
                     name="digitalReading"
                     label="Lectura digital"
@@ -239,6 +249,7 @@ const DataForm = () => {
                     helperText={errors.digitalReading?.message}
                     rules={{ required: "La lectura digital es obligatoria" }}
                 />
+                </div>
                 <SwitchField
                     name={"rainPast24hrs"}
                     control={control}

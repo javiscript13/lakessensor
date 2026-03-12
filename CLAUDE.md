@@ -103,3 +103,100 @@ Key variables expected at runtime:
 - `DJANGO_SECRET_KEY`
 - `MQTT_SERVER`, `MQTT_PORT`, `MQTT_TOPIC` — for the mqtt_listener service
 - `READINGS_ENDPOINT` — URL the mqtt_listener POSTs readings to (e.g. `http://django:8000/api/sensor/readings`)
+
+## File Map
+
+Quick reference to avoid unnecessary exploration. Read only the files relevant to your task.
+
+### Backend (Python/Django)
+
+```
+config/
+  api_router.py           # DRF router — registers all app URLs
+  urls.py                 # Root URL conf (includes api_router)
+  settings/
+    base.py               # Shared settings (DB, JWT, CORS, installed apps)
+    local.py              # Local dev overrides
+    production.py         # Production overrides (ALLOWED_HOSTS, HTTPS, etc.)
+    test.py               # Test settings (used by pytest)
+
+sensorpipeline/           # Core sensor domain app
+  models.py               # Device → ReadingSession → Reading + AnalogReading
+  views.py                # ReadingCreate (auto-session), AnalogReadingViewSet, etc.
+  serializers.py          # ReadingSessionSerializer with computed averages
+  urls.py                 # Sensor API URL patterns
+
+lakessensor/users/        # User management app
+  models.py               # Custom User model
+  api/views.py            # User API views
+  api/serializers.py      # User serializers
+
+mqtt_listener/
+  mqtt_client.py          # Standalone MQTT subscriber → HTTP POST to Django API
+```
+
+### Frontend (React + MUI)
+
+```
+frontend/src/
+  App.js                  # Root component, wraps with AuthContext + Router
+  AppRoutes.js            # All React Router routes defined here
+  index.js                # Entry point
+
+  pages/
+    Home.js               # Landing page
+    Data.js               # Public map with ReadingSession markers (react-leaflet-cluster)
+    DataForm.js           # Authenticated form for submitting/editing AnalogReading
+    LoginPage.jsx         # Login form
+    About.js / Contact.js / Ressources.js / NoMatch.js
+
+  components/
+    Map.jsx               # Leaflet map component used by Data.js
+    Menu.js               # Navigation menu — use React Router Link, NOT href
+    PrivateRoute.jsx      # Auth guard for protected routes
+    LogoutButton.jsx
+    forms/                # Reusable MUI form field wrappers
+      InputField.jsx
+      SelectField.jsx
+      SliderField.jsx
+      SwitchField.jsx     # MUI Switch — use `checked` prop, NOT `value`
+      TextFieldField.jsx
+      ToggleButtonGroupField.jsx
+
+  context/
+    AuthContext.js        # JWT auth state (login/logout, user info)
+
+  services/
+    apiService.js         # All API calls (single source of truth)
+    axiosInstance.js      # Axios with JWT refresh interceptor
+```
+
+### Docker / Infrastructure
+
+```
+local.yml                 # Docker Compose for local dev
+production.yml            # Docker Compose for production
+
+compose/local/            # Local Dockerfiles and start scripts
+  django/                 # Django dev container
+  frontend/               # React dev container (npm start)
+  mqtt/                   # MQTT listener container
+
+compose/production/       # Production Dockerfiles and configs
+  django/                 # Django production container
+  frontend/               # React build + nginx to serve static files
+  nginx/default.conf      # nginx reverse proxy config (routes /api/ to django)
+  postgres/               # PostgreSQL container + backup scripts
+  traefik/                # Traefik reverse proxy config (alternative to nginx-proxy)
+
+.envs/
+  .local/                 # Local env files (.django, .postgres, .mqtt)
+  .production/            # Production env files (.django, .postgres, .mqtt)
+```
+
+## Debugging Guidelines
+
+- **UI navigation issues**: Check for `href` on MUI or custom components first — use React Router `Link` or `component={Link}` instead to avoid full page reloads.
+- **MUI controlled components**: `Switch`/`Checkbox` use `checked` prop (not `value`). `TextField` uses `value`.
+- **Deployment config**: Always use environment variables for hosts, origins, and secrets. Never hardcode IPs or domain names.
+- **API field names**: Backend uses `snake_case` (Python), API JSON uses `camelCase` (djangorestframework-camel-case), Frontend uses `camelCase` (JS).

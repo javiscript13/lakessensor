@@ -27,8 +27,8 @@ const LoginPage = ({ redirectPath = "/"}) => {
         setError(null);
 
         try {
-            const { access, refresh } = await loginUser(email, password);
-            login(access, refresh)
+            const { access } = await loginUser(email, password);
+            login(access);
             navigate(redirectPath, { replace: true });
         } catch (err) {
             console.error(err);

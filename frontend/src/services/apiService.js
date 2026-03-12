@@ -20,10 +20,19 @@ export const patchAnalogData = async (id, analogData) => {
     }
 };
 
-// Login with JWT
+// Login with JWT — refresh token is set as httpOnly cookie by the backend
 export const loginUser = async (email, password) => {
     const response = await axiosInstance.post("/token/", { email, password });
-    return response.data; 
+    return response.data;
+};
+
+export const logoutUser = async () => {
+    await axiosInstance.post("/logout/");
+};
+
+export const getMe = async () => {
+    const response = await axiosInstance.get("/users/me/");
+    return response.data;
 };
 
 export const getUserReadings = async () => {

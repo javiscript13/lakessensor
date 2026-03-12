@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Marker, Popup } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import Map from '../components/Map';
 import { getAllReadings } from '../services/apiService';
 import {
@@ -117,9 +118,11 @@ const Data = () => {
     return (
         <div style={{ height: '500px' }}>
             <Map center={[15, -90.5]} zoom={9} bounds={bounds.length > 0 ? bounds : null}>
-                {sessions.map(session => (
-                    <SessionMarker key={session.id} session={session} />
-                ))}
+                <MarkerClusterGroup>
+                    {sessions.map(session => (
+                        <SessionMarker key={session.id} session={session} />
+                    ))}
+                </MarkerClusterGroup>
             </Map>
         </div>
     );

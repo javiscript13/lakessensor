@@ -20,8 +20,11 @@ class ReadingCreate(generics.CreateAPIView):
     session_max_time = 5 #in minutes
 
     def create(self, request, *args, **kwargs):
-        device = Device.objects.get(mac=request.data["device"])
-        
+        try:
+            device = Device.objects.get(mac=request.data["device"])
+        except Device.DoesNotExist:
+            return Response({"error": "Device not found"}, status=status.HTTP_404_NOT_FOUND)
+
         data = request.data.copy()
         data['device'] = device.id
         data['read_date'] = timezone.now().isoformat()
@@ -47,13 +50,12 @@ class ReadingCreate(generics.CreateAPIView):
 
         serializer = self.get_serializer(data=data)
         if not serializer.is_valid():
-            print("Serializer errors ", serializer.errors)
-            return Response(serializer.errors, status=400)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         try:
             self.perform_create(serializer)
-        except Exception as e:
+        except Exception:
             return Response(
-                {"error": str(e)}, 
+                {"error": "Internal server error"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         headers = self.get_success_headers(serializer.data)

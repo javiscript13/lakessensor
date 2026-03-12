@@ -7,6 +7,8 @@ import paho.mqtt.client as mqtt
 import requests
 
 READINGS_ENDPOINT = os.environ["READINGS_ENDPOINT"]
+MQTT_API_KEY = os.environ["MQTT_API_KEY"]
+API_HEADERS = {"X-Api-Key": MQTT_API_KEY}
 
 
 def on_connect(client, userdata, flags, rc):
@@ -36,7 +38,7 @@ def on_message(client, userdata, msg):
     last_error = None
     for attempt in range(3):
         try:
-            response = requests.post(READINGS_ENDPOINT, json=item, timeout=5)
+            response = requests.post(READINGS_ENDPOINT, json=item, headers=API_HEADERS, timeout=5)
             print("Status Code", response.status_code)  # noqa: T201
             break
         except (requests.Timeout, requests.exceptions.ConnectionError) as e:

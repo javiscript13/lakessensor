@@ -338,5 +338,8 @@ SPECTACULAR_SETTINGS = {
     "SERVE_PERMISSIONS": ["rest_framework.permissions.IsAdminUser"],
     "SCHEMA_PATH_PREFIX": "/api/",
 }
+# MQTT API Key — used to authenticate the mqtt_listener service
+MQTT_API_KEY = env("MQTT_API_KEY")
+
 # Your stuff...
 # ------------------------------------------------------------------------------

@@ -1,13 +1,22 @@
 from .models import Reading, AnalogReading, Device, ReadingSession
 from .serializers import ReadingSerializer, AnalogReadingSerializer, ReadingSessionSerializer
 from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, BasePermission
 from rest_framework.response import Response
 from django.utils import timezone
+from django.conf import settings
 from datetime import timedelta
+
+
+class HasMqttApiKey(BasePermission):
+    def has_permission(self, request, view):
+        api_key = request.headers.get("X-Api-Key")
+        return bool(api_key and api_key == settings.MQTT_API_KEY)
+
 
 class ReadingCreate(generics.CreateAPIView):
     serializer_class = ReadingSerializer
+    permission_classes = [HasMqttApiKey]
     session_max_time = 5 #in minutes
 
     def create(self, request, *args, **kwargs):

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, IconButton, Typography, Box, Button, Container, Link } from '@mui/material';
+import { AppBar, Toolbar, IconButton, Typography, Box, Button, Container } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LogoutButton from './LogoutButton';
 
@@ -46,7 +47,7 @@ const Menu = () => {
             <Toolbar variant="regular" sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Container sx={{ display: 'flex', flexDirection: 'row' }}>
                     <Box sx={{ display: { xs: 'flex' }, mr: 1 }} >
-                        <Link href="/" sx={{ mt: 1, mb: 1 }}>
+                        <Link to="/" style={{ marginTop: 8, marginBottom: 8 }}>
                             <img src="https://via.placeholder.com/60" alt="Logo" />
                         </Link>
                         <Typography sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
@@ -62,7 +63,8 @@ const Menu = () => {
                         {pages.map((page) => (
                             <Button
                                 key={page.name}
-                                href={page.target}
+                                component={Link}
+                                to={page.target}
                                 sx={{ my: 2, color: 'white', display: 'block' }}
                             >
                                 {page.name}

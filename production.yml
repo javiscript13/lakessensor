@@ -59,17 +59,6 @@ services:
     env_file:
       - ./.envs/.production/.postgres
 
-  nginx:
-    build:
-      context: .
-      dockerfile: ./compose/production/nginx/Dockerfile
-    image: lakessensor_production_nginx
-    container_name: lakessensor_production_nginx
-    depends_on:
-      - django
-    volumes:
-      - production_django_media:/usr/share/nginx/media:ro
-
   frontend:
     build:
       context: .

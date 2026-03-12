@@ -3,8 +3,11 @@ version: '3'
 volumes:
   production_postgres_data: {}
   production_postgres_data_backups: {}
-  production_traefik: {}
   production_django_media: {}
+
+networks:
+  nginx-proxy:
+    external: true
 
 services:
   mqtt:
@@ -25,8 +28,8 @@ services:
     build:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
-
     image: lakessensor_production_django
+    container_name: lakessensor_production_django
     volumes:
       - production_django_media:/app/lakessensor/media
     depends_on:
@@ -35,50 +38,53 @@ services:
       - ./.envs/.production/.django
       - ./.envs/.production/.postgres
     command: /start
-    ports:
-      - "8000:8000"
+    environment:
+      - VIRTUAL_HOST=${API_DOMAIN}
+      - VIRTUAL_PORT=8000
+      - LETSENCRYPT_HOST=${API_DOMAIN}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+    networks:
+      - default
+      - nginx-proxy
 
   postgres:
     build:
       context: .
       dockerfile: ./compose/production/postgres/Dockerfile
     image: lakessensor_production_postgres
+    container_name: lakessensor_production_postgres
     volumes:
       - production_postgres_data:/var/lib/postgresql/data
       - production_postgres_data_backups:/backups
     env_file:
       - ./.envs/.production/.postgres
 
-#  traefik:
-#    build:
-#      context: .
-#      dockerfile: ./compose/production/traefik/Dockerfile
-#    image: lakessensor_production_traefik
-#    depends_on:
-#      - django
-#    volumes:
-#      - production_traefik:/etc/traefik/acme
-#    ports:
-#      - '0.0.0.0:80:80'
-#      - '0.0.0.0:443:443'
-
   nginx:
     build:
       context: .
       dockerfile: ./compose/production/nginx/Dockerfile
-    image: lakessensor_local_nginx
+    image: lakessensor_production_nginx
+    container_name: lakessensor_production_nginx
     depends_on:
       - django
     volumes:
       - production_django_media:/usr/share/nginx/media:ro
-  
+
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    image: lakessensor_frontend
-    container_name: lakessensor_frontend
-    volumes:
-      - ./frontend:/app
-    ports:
-      - "3000:3000"
+      context: .
+      dockerfile: ./compose/production/frontend/Dockerfile
+      args:
+        - REACT_APP_BACKEND_API=https://${API_DOMAIN}/api
+    image: lakessensor_production_frontend
+    container_name: lakessensor_production_frontend
+    depends_on:
+      - django
+    environment:
+      - VIRTUAL_HOST=${FRONTEND_DOMAIN}
+      - VIRTUAL_PORT=80
+      - LETSENCRYPT_HOST=${FRONTEND_DOMAIN}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+    networks:
+      - default
+      - nginx-proxy

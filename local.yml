@@ -53,10 +53,10 @@ services:
 
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    image: lakessensor_frontend
-    container_name: lakessensor_frontend
+      context: .
+      dockerfile: ./compose/local/frontend/Dockerfile
+    image: lakessensor_local_frontend
+    container_name: lakessensor_local_frontend
     volumes:
       - ./frontend:/app
     ports:

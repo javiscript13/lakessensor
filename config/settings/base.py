@@ -348,7 +348,7 @@ SPECTACULAR_SETTINGS = {
     "SCHEMA_PATH_PREFIX": "/api/",
 }
 # MQTT API Key — used to authenticate the mqtt_listener service
-MQTT_API_KEY = env("MQTT_API_KEY")
+MQTT_API_KEY = env("MQTT_API_KEY", default="")
 
 # Your stuff...
 # ------------------------------------------------------------------------------

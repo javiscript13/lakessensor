@@ -24,7 +24,7 @@ const Menu = () => {
         },
         {
             name: "Datos",
-            target: "/data"
+            target: "/datos"
         },
         {
             name: "Cargar datos",

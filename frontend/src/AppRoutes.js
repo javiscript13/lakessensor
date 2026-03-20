@@ -4,6 +4,7 @@ import PrivateRoute from "./components/PrivateRoute";
 
 const homeModule = import(/* webpackPrefetch: true */ './pages/Home');
 const aboutModule = import(/* webpackPrefetch: true */ './pages/About');
+const dataHubModule = import(/* webpackPrefetch: true */ './pages/DataHub');
 const dataModule = import(/* webpackPrefetch: true */ './pages/Data');
 const dataFormModule = import(/* webpackPrefetch: true */ './pages/DataForm');
 const ressourcesModule = import(/* webpackPrefetch: true */ './pages/Ressources');
@@ -12,6 +13,7 @@ const noMatchModule = import(/* webpackPrefetch: true */ './pages/NoMatch');
 
 const Home = React.lazy(() => homeModule);
 const About = React.lazy(() => aboutModule);
+const DataHub = React.lazy(() => dataHubModule);
 const Data = React.lazy(() => dataModule);
 const DataForm = React.lazy(() => dataFormModule);
 const Ressources = React.lazy(() => ressourcesModule);
@@ -24,7 +26,9 @@ const AppRoutes = () => {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />
-                <Route path="/data" element={<Data />} />
+                <Route path="/datos" element={<DataHub />} />
+                <Route path="/datos/lecturas" element={<Data />} />
+                <Route path="/datos/analisis" element={<div />} />
                 <Route path="/form" element={
                     <PrivateRoute>
                         <DataForm/>

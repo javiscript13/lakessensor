@@ -19,7 +19,7 @@ const SessionMarker = ({ session }) => {
             <Marker position={[session.avgLat, session.avgLong]}>
                 <Popup minWidth={280}>
                     <h3 style={{ margin: '0 0 8px', fontSize: '1.5em', fontWeight: 'bold' }}>
-                        Dispositivo {session.deviceName} — Sesión {session.id}
+                        Dispositivo {session.deviceName} — Sesión {session.id} ({new Date(session.oldestReadingTime).toLocaleString('es-GT')})
                     </h3>
 
                     <h4 style={{ margin: '8px 0 4px', fontSize: '1.2em', fontWeight: 'bold' }}>Lectura análoga</h4>

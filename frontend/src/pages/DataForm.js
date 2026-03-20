@@ -274,7 +274,7 @@ const DataForm = () => {
                     key={`secchiDepth-${formKey}`}
                     name="secchiDepth"
                     control={control}
-                    label="Discho Secchi"
+                    label="Disco Secchi (en cm)"
                     setValue={setValue}
                     initialValue={analogInitials.secchiDepth}
                     shiftStep={5}

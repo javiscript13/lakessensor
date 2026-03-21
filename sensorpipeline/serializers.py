@@ -42,10 +42,12 @@ class ReadingSessionSerializer(serializers.ModelSerializer):
         return oldest.read_date if oldest else None
 
     def get_avg_lat(self, obj):
-        return _avg_nonzero(obj.related_readings.all(), 'lat')
+        values = [float(r.lat) for r in obj.related_readings.all() if r.lat != 0]
+        return round(sum(values) / len(values), 6) if values else None
 
     def get_avg_long(self, obj):
-        return _avg_nonzero(obj.related_readings.all(), 'long')
+        values = [float(r.long) for r in obj.related_readings.all() if r.long != 0]
+        return round(sum(values) / len(values), 6) if values else None
 
     def get_avg_elevation(self, obj):
         return _avg_nonzero(obj.related_readings.all(), 'elevation')

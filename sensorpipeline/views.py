@@ -77,5 +77,5 @@ class UserReadings(generics.ListAPIView):
         ).prefetch_related('related_readings')
 
 class AllReadings(generics.ListAPIView):
-    queryset = ReadingSession.objects.all().prefetch_related('related_readings')
+    queryset = ReadingSession.objects.all().prefetch_related('related_readings').select_related('analog_reading')
     serializer_class = ReadingSessionSerializer

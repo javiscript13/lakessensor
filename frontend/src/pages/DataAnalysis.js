@@ -37,7 +37,7 @@ const DataAnalysis = () => {
             <div style={{ padding: '4px 8px', background: '#eee', fontSize: 12 }}>
                 Zoom: {zoom}
             </div>
-            <div style={{ height: '600px' }}>
+            <div style={{ height: 'calc(100vh - 64px)' }}>
                 <Map center={[15, -90.5]} zoom={zoom} bounds={bounds.length > 0 ? bounds : null}>
                     <ZoomTracker onZoomChange={setZoom} />
                     <ZoneGrid

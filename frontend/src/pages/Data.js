@@ -116,7 +116,7 @@ const Data = () => {
     const bounds = sessions.map(s => [s.avgLat, s.avgLong]);
 
     return (
-        <div style={{ height: '500px' }}>
+        <div style={{ height: 'calc(100vh - 64px)' }}>
             <Map center={[15, -90.5]} zoom={9} bounds={bounds.length > 0 ? bounds : null}>
                 <MarkerClusterGroup>
                     {sessions.map(session => (

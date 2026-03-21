@@ -12,8 +12,17 @@ const ZoneBoxplot = ({ title, unit, categories, boxData, counts }) => {
         }, 100);
     }, [categories, boxData]);
 
-    const validData = boxData.filter(Boolean);
-    if (validData.length === 0) {
+    // Filter out null entries (buckets with fewer than 3 values)
+    const filtered = categories.reduce((acc, cat, i) => {
+        if (boxData[i] !== null) {
+            acc.categories.push(cat);
+            acc.boxData.push(boxData[i]);
+            acc.counts.push(counts[i]);
+        }
+        return acc;
+    }, { categories: [], boxData: [], counts: [] });
+
+    if (filtered.boxData.length === 0) {
         return (
             <Box sx={{ textAlign: 'center', py: 4 }}>
                 <Typography variant="body2" color="text.secondary">
@@ -30,7 +39,7 @@ const ZoneBoxplot = ({ title, unit, categories, boxData, counts }) => {
             formatter: (params) => {
                 if (params.seriesType !== 'boxplot') return '';
                 const [min, q1, med, q3, max] = params.data;
-                const n = counts[params.dataIndex];
+                const n = filtered.counts[params.dataIndex];
                 return `
                     <b>${params.name}</b><br/>
                     Máx: ${max?.toFixed(2)} ${unit}<br/>
@@ -45,7 +54,7 @@ const ZoneBoxplot = ({ title, unit, categories, boxData, counts }) => {
         grid: { left: 40, right: 10, bottom: 60, top: 40 },
         xAxis: {
             type: 'category',
-            data: categories,
+            data: filtered.categories,
             axisLabel: { rotate: 30, fontSize: 10 },
         },
         yAxis: {
@@ -56,7 +65,7 @@ const ZoneBoxplot = ({ title, unit, categories, boxData, counts }) => {
         series: [
             {
                 type: 'boxplot',
-                data: boxData,
+                data: filtered.boxData,
                 itemStyle: { color: '#90caf9', borderColor: '#1565c0' },
             },
         ],

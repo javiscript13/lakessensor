@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Marker, Popup } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import Map from '../components/Map';
-import { getAllReadings } from '../services/apiService';
+import { getAllReadings, getSessionReadings } from '../services/apiService';
 import {
-    Button, Dialog, DialogTitle, DialogContent, DialogActions,
+    Button, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
     Table, TableHead, TableBody, TableRow, TableCell,
 } from '@mui/material';
 
@@ -13,6 +13,19 @@ const fmt = (val) => val != null ? val : '—';
 
 const SessionMarker = ({ session }) => {
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [readings, setReadings] = useState([]);
+    const [loadingReadings, setLoadingReadings] = useState(false);
+
+    const handleOpenDialog = async () => {
+        setDialogOpen(true);
+        setLoadingReadings(true);
+        try {
+            const data = await getSessionReadings(session.id);
+            setReadings(data);
+        } finally {
+            setLoadingReadings(false);
+        }
+    };
 
     return (
         <>
@@ -47,7 +60,7 @@ const SessionMarker = ({ session }) => {
                         size="small"
                         variant="outlined"
                         style={{ marginTop: 10 }}
-                        onClick={() => setDialogOpen(true)}
+                        onClick={handleOpenDialog}
                     >
                         Ver datos completos
                     </Button>
@@ -73,7 +86,9 @@ const SessionMarker = ({ session }) => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {(session.readings || []).map((r) => (
+                            {loadingReadings ? (
+                                <TableRow><TableCell colSpan={8}>Cargando...</TableCell></TableRow>
+                            ) : readings.map((r) => (
                                 <TableRow key={r.id}>
                                     <TableCell>{new Date(r.readDate).toLocaleString('es-GT')}</TableCell>
                                     <TableCell>{r.lat}</TableCell>
@@ -99,6 +114,7 @@ const SessionMarker = ({ session }) => {
 
 const Data = () => {
     const [sessions, setSessions] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchAllReadings = async () => {
@@ -107,6 +123,8 @@ const Data = () => {
                 setSessions(data.filter(s => s.avgLat != null && s.avgLong != null));
             } catch (error) {
                 console.error('Error fetching readings', error);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -116,7 +134,16 @@ const Data = () => {
     const bounds = sessions.map(s => [s.avgLat, s.avgLong]);
 
     return (
-        <div style={{ height: 'calc(100vh - 64px)' }}>
+        <div style={{ height: 'calc(100vh - 64px)', position: 'relative' }}>
+            {loading && (
+                <div style={{
+                    position: 'absolute', inset: 0, zIndex: 1000,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'rgba(255,255,255,0.7)',
+                }}>
+                    <CircularProgress />
+                </div>
+            )}
             <Map center={[15, -90.5]} zoom={9} bounds={bounds.length > 0 ? bounds : null}>
                 <MarkerClusterGroup>
                     {sessions.map(session => (

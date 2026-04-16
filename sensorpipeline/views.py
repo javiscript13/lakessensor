@@ -1,5 +1,5 @@
 from .models import Reading, AnalogReading, Device, ReadingSession
-from .serializers import ReadingSerializer, AnalogReadingSerializer, ReadingSessionSerializer
+from .serializers import ReadingSerializer, AnalogReadingSerializer, ReadingSessionSerializer, ReadingSessionMapSerializer
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, BasePermission
 from rest_framework.response import Response
@@ -78,4 +78,11 @@ class UserReadings(generics.ListAPIView):
 
 class AllReadings(generics.ListAPIView):
     queryset = ReadingSession.objects.all().prefetch_related('related_readings').select_related('analog_reading')
-    serializer_class = ReadingSessionSerializer
+    serializer_class = ReadingSessionMapSerializer
+
+
+class SessionReadings(generics.ListAPIView):
+    serializer_class = ReadingSerializer
+
+    def get_queryset(self):
+        return Reading.objects.filter(reading_session_id=self.kwargs['pk'])

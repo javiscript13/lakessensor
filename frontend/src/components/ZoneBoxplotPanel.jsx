@@ -16,7 +16,7 @@ const METRICS = [
 const ZoneBoxplotPanel = ({ open, onClose, cellSessions }) => {
     const [granularity, setGranularity] = useState(GRANULARITIES.MONTH);
 
-    const digitalCount = (cellSessions || []).reduce((acc, s) => acc + (s.readings?.length || 0), 0);
+    const digitalCount = (cellSessions || []).reduce((acc, s) => acc + (s.readingCount || 0), 0);
     const analogCount  = (cellSessions || []).filter(s => s.analogReading).length;
 
     return (
@@ -33,11 +33,6 @@ const ZoneBoxplotPanel = ({ open, onClose, cellSessions }) => {
             <TimeBucketSelector value={granularity} onChange={setGranularity} />
             <Divider sx={{ mb: 2 }} />
 
-            {analogCount < 3 && (
-                <Alert severity="info" sx={{ mb: 2 }}>
-                    Pocos datos análogos en esta zona. El disco Secchi puede no ser representativo.
-                </Alert>
-            )}
 
             <Grid container spacing={2}>
                 {METRICS.map(({ key, title, unit }) => {

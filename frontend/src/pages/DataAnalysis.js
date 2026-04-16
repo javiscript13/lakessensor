@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useMap, useMapEvents } from 'react-leaflet';
+import { CircularProgress } from '@mui/material';
 import Map from '../components/Map';
 import ZoneGrid from '../components/ZoneGrid';
 import ZoneBoxplotPanel from '../components/ZoneBoxplotPanel';
@@ -15,6 +16,7 @@ const ZoomTracker = ({ onZoomChange }) => {
 
 const DataAnalysis = () => {
     const [sessions, setSessions] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [zoom, setZoom] = useState(9);
     const [selectedCell, setSelectedCell] = useState(null);
 
@@ -25,6 +27,8 @@ const DataAnalysis = () => {
                 setSessions(data.filter(s => s.avgLat != null && s.avgLong != null));
             } catch (error) {
                 console.error('Error fetching readings', error);
+            } finally {
+                setLoading(false);
             }
         };
         fetch();
@@ -34,7 +38,16 @@ const DataAnalysis = () => {
 
     return (
         <>
-<div style={{ height: 'calc(100vh - 64px)' }}>
+        <div style={{ height: 'calc(100vh - 64px)', position: 'relative' }}>
+            {loading && (
+                <div style={{
+                    position: 'absolute', inset: 0, zIndex: 1000,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'rgba(255,255,255,0.7)',
+                }}>
+                    <CircularProgress />
+                </div>
+            )}
                 <Map center={[15, -90.5]} zoom={zoom} bounds={bounds.length > 0 ? bounds : null}>
                     <ZoomTracker onZoomChange={setZoom} />
                     <ZoneGrid

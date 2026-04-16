@@ -25,8 +25,9 @@ const ZoneBoxplot = ({ title, unit, categories, boxData, counts }) => {
     if (filtered.boxData.length === 0) {
         return (
             <Box sx={{ textAlign: 'center', py: 4 }}>
+                <Typography variant="body2" fontWeight="bold">{title}</Typography>
                 <Typography variant="body2" color="text.secondary">
-                    Sin suficientes datos
+                    Sin datos para esta métrica
                 </Typography>
             </Box>
         );

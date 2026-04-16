@@ -6,5 +6,6 @@ urlpatterns = [
     path("analog", views.AnalogReadingView.as_view(), name="analog"),
     path("analog/<int:pk>", views.AnalogReadingView.as_view(), name="analog-detail"),
     path("user-readings", views.UserReadings.as_view(), name="user-readings"),
-    path("all-readings", views.AllReadings.as_view(), name="all-readings")
+    path("all-readings", views.AllReadings.as_view(), name="all-readings"),
+    path("session-readings/<int:pk>", views.SessionReadings.as_view(), name="session-readings"),
 ]

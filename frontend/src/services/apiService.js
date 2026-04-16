@@ -52,3 +52,12 @@ export const getAllReadings = async () => {
         throw new Error('Error getting all readings', error)
     }
 };
+
+export const getSessionReadings = async (sessionId) => {
+    try {
+        const response = await axiosInstance.get(`/sensor/session-readings/${sessionId}`);
+        return response.data;
+    } catch (error) {
+        throw new Error('Error getting session readings', error);
+    }
+};

@@ -61,13 +61,16 @@ export const buildBoxplotSeries = (sessions, metric, granularity) => {
             if (!buckets.has(key)) buckets.set(key, []);
             buckets.get(key).push(Number(val));
         } else {
-            for (const reading of session.readings || []) {
-                const val = reading[metric];
-                if (val == null) continue;
-                const key = getTimeBucketKey(reading.readDate, granularity);
-                if (!buckets.has(key)) buckets.set(key, []);
-                buckets.get(key).push(Number(val));
-            }
+            const metricToAvg = {
+                ph:        'avgPh',
+                waterTemp: 'avgWaterTemp',
+            };
+            const avgField = metricToAvg[metric];
+            const val = avgField ? session[avgField] : null;
+            if (val == null) continue;
+            const key = getTimeBucketKey(session.oldestReadingTime, granularity);
+            if (!buckets.has(key)) buckets.set(key, []);
+            buckets.get(key).push(Number(val));
         }
     }
 

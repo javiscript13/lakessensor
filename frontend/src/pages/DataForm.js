@@ -97,6 +97,10 @@ const DataForm = () => {
                 secchiDepth: ar.secchiDepth,
             });
             setFormKey(k => k + 1);
+        } else if (reading) {
+            setAnalogInitials(DEFAULT_INITIALS);
+            reset({ ...DEFAULT_VALUES, digitalReading: reading.id });
+            setFormKey(k => k + 1);
         }
     }, [digitalReadingValue]); // eslint-disable-line react-hooks/exhaustive-deps
 

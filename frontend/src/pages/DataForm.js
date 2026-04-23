@@ -4,7 +4,7 @@ import { SelectField } from "../components/forms/SelectField";
 import { SwitchField } from '../components/forms/SwitchField';
 import { SliderField } from '../components/forms/SliderField'
 import {
-    Grid, ToggleButton, Button, Snackbar,
+    Grid, ToggleButton, Button, Snackbar, CircularProgress,
     Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
 } from '@mui/material';
 import { ToggleButtonGroupField } from '../components/forms/ToggleButtonGroupField';
@@ -40,6 +40,7 @@ const DataForm = () => {
     });
 
     const [readings, setReadings] = useState([]);
+    const [loadingReadings, setLoadingReadings] = useState(true);
     const readingsDataRef = useRef([]);
     const [savingResult, setSavingResult] = useState("");
     const [formKey, setFormKey] = useState(0);
@@ -58,6 +59,7 @@ const DataForm = () => {
     }, [errors.digitalReading]);
 
     const fetchReadings = async () => {
+        setLoadingReadings(true);
         try {
             const data = await getUserReadings();
             readingsDataRef.current = data;
@@ -68,6 +70,8 @@ const DataForm = () => {
             setReadings(options);
         } catch (err) {
             console.error("User readings could not be loaded", err);
+        } finally {
+            setLoadingReadings(false);
         }
     };
 
@@ -230,6 +234,14 @@ const DataForm = () => {
         { value: 59, label: "" },
         { value: 60, label: "60" },
     ];
+
+    if (loadingReadings) {
+        return (
+            <Grid container justifyContent="center" sx={{ paddingTop: 10 }}>
+                <CircularProgress />
+            </Grid>
+        );
+    }
 
     return (
         <form>

@@ -283,3 +283,6 @@ lakessensor/media/
 .envs/.local/.django
 .envs/.local/.postgres
 .envs/.local/.mqtt
+
+# DB dumps / backups (contienen datos reales, no van a git)
+backups/

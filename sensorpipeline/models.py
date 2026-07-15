@@ -5,6 +5,12 @@ from django.utils.translation import gettext as _
 from django.conf import settings
 
 
+class Lake(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
 class Device(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
     nickname = models.CharField(max_length=35, unique=True)

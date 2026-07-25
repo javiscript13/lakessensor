@@ -27,7 +27,7 @@ const dividerStyle = {
 };
 
 const selectSx = {
-    width: '75%',
+    width: { xs: '100%', sm: '75%' },
     margin: '10px',
 };
 

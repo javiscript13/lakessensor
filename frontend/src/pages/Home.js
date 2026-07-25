@@ -2,10 +2,9 @@ import React from 'react';
 import { Paper, Typography } from '@mui/material';
 
 const mainParagraph = {
-  margin: 20,
-  marginTop: 10,
-  marginBottom: 10,
-  padding: 10,
+  mx: { xs: 1, sm: 3, md: 5 },
+  my: { xs: 1, sm: 2, md: 3 },
+  p: { xs: 2, sm: 3, md: 5 },
 };
 
 const Home = () => {

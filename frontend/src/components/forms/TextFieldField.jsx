@@ -2,7 +2,7 @@ import { Controller } from 'react-hook-form';
 import { TextField } from '@mui/material';
 
 const itemStyle = {
-  width: '75%',
+  width: { xs: '100%', sm: '75%' },
   margin: '10px',
 }
 

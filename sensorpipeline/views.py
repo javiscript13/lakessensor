@@ -1,5 +1,5 @@
-from .models import Reading, AnalogReading, Device, ReadingSession
-from .serializers import ReadingSerializer, AnalogReadingSerializer, ReadingSessionSerializer, ReadingSessionMapSerializer
+from .models import Reading, AnalogReading, Device, ReadingSession, LakeSample, Lake
+from .serializers import ReadingSerializer, AnalogReadingSerializer, ReadingSessionSerializer, ReadingSessionMapSerializer, LakeSampleSerializer, LakeSerializer
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, BasePermission
 from rest_framework.response import Response
@@ -66,7 +66,25 @@ class AnalogReadingView(generics.ListCreateAPIView,
     permission_classes = [IsAuthenticated]
     serializer_class = AnalogReadingSerializer
     queryset = AnalogReading.objects.all()
-    
+
+class LakeListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LakeSerializer
+    queryset = Lake.objects.all().order_by('name')
+
+
+class LakeSampleView(generics.ListCreateAPIView,
+                     generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LakeSampleSerializer
+
+    def get_queryset(self):
+        return LakeSample.objects.filter(created_by=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+
 class UserReadings(generics.ListAPIView):
     serializer_class = ReadingSessionMapSerializer
     permission_classes = [IsAuthenticated]

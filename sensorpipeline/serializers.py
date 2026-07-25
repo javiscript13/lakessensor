@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Reading, AnalogReading, ReadingSession
+from .models import Reading, AnalogReading, ReadingSession, LakeSample, Lake
 
 
 def _avg_nonzero(readings, field):
@@ -10,6 +10,19 @@ def _avg_nonzero(readings, field):
 class AnalogReadingSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnalogReading
+        fields = '__all__'
+
+class LakeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lake
+        fields = ['id', 'name']
+
+class LakeSampleSerializer(serializers.ModelSerializer):
+    created_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    lake_name = serializers.CharField(source='lake.name', read_only=True)
+
+    class Meta:
+        model = LakeSample
         fields = '__all__'
 
 class ReadingSerializer(serializers.ModelSerializer):

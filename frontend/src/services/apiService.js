@@ -61,3 +61,39 @@ export const getSessionReadings = async (sessionId) => {
         throw new Error('Error getting session readings', error);
     }
 };
+
+export const getLakes = async () => {
+    try {
+        const response = await axiosInstance.get('/sensor/lakes');
+        return response.data;
+    } catch (error) {
+        throw new Error('Error getting lakes', error);
+    }
+};
+
+export const getLakeSamples = async () => {
+    try {
+        const response = await axiosInstance.get('/sensor/lake-samples');
+        return response.data;
+    } catch (error) {
+        throw new Error('Error getting lake samples', error);
+    }
+};
+
+export const postLakeSample = async (lakeSampleData) => {
+    try {
+        const response = await axiosInstance.post('/sensor/lake-samples', lakeSampleData);
+        return response.data;
+    } catch (error) {
+        throw new Error('Error posting lake sample', error);
+    }
+};
+
+export const patchLakeSample = async (id, lakeSampleData) => {
+    try {
+        const response = await axiosInstance.patch(`/sensor/lake-samples/${id}`, lakeSampleData);
+        return response.data;
+    } catch (error) {
+        throw new Error('Error patching lake sample', error);
+    }
+};

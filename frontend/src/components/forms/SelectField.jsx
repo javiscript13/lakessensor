@@ -20,10 +20,12 @@ export const SelectField = ({
   disabled = false,
   rules = {},
   defaultValue = "",
+  fullWidth = true,
+  sx,
   ...rest
 }) => {
   return (
-    <FormControl fullWidth error={!!error} disabled={disabled} sx={{ my: 1 }}>
+    <FormControl fullWidth={fullWidth} error={!!error} disabled={disabled} sx={{ my: 1, ...sx }}>
       <InputLabel id={`${name}-label`}>{label}</InputLabel>
       <Controller
         name={name}

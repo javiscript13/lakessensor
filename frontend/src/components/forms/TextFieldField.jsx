@@ -17,6 +17,7 @@ export const TextFieldField = ({ name, control, label, rules, sx, type, ...props
           onChange={onChange}
           value={value}
           label={label}
+          type={type}
           sx={{ ...itemStyle, ...sx }}
           {...props}
         />

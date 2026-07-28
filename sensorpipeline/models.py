@@ -23,7 +23,9 @@ class Device(models.Model):
         on_delete=models.PROTECT,
         related_name="devices"
     )
-    primary_lake = models.CharField(max_length=300)
+    primary_lake = models.ForeignKey(
+        Lake, on_delete=models.PROTECT, related_name="devices", null=True, blank=True
+    )
 
     def __str__(self):
         return f"{self.mac}"

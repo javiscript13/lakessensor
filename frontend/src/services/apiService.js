@@ -1,7 +1,5 @@
 import axiosInstance from './axiosInstance';
 
-const token = localStorage.getItem("access");
-
 export const postAnalogData = async (analogData) => {
     try {
         const response = await axiosInstance.post('/sensor/analog', analogData);

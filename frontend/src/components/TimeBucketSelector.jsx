@@ -10,7 +10,7 @@ const options = [
     { value: GRANULARITIES.YEAR,        label: 'Año' },
 ];
 
-const TimeBucketSelector = ({ value, onChange }) => (
+const TimeBucketSelector = ({ value, onChange, exclude = [] }) => (
     <Box sx={{ mb: 2 }}>
         <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
             Agrupar por
@@ -21,7 +21,7 @@ const TimeBucketSelector = ({ value, onChange }) => (
             onChange={(_, val) => { if (val) onChange(val); }}
             size="small"
         >
-            {options.map(opt => (
+            {options.filter(opt => !exclude.includes(opt.value)).map(opt => (
                 <ToggleButton key={opt.value} value={opt.value}>
                     {opt.label}
                 </ToggleButton>

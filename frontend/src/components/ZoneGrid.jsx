@@ -9,7 +9,7 @@ const cellColor = (count) => {
     return '#bbdefb';
 };
 
-const ZoneGrid = ({ sessions, onCellClick }) => {
+const ZoneGrid = ({ sessions, onCellClick, itemLabelSingular = 'sesión', itemLabelPlural = 'sesiones' }) => {
     const map = useMap();
     const [cells, setCells] = useState([]);
 
@@ -46,7 +46,7 @@ const ZoneGrid = ({ sessions, onCellClick }) => {
                     }}
                 >
                     <Tooltip sticky>
-                        {cellSessions.length} sesión{cellSessions.length !== 1 ? 'es' : ''}
+                        {cellSessions.length} {cellSessions.length !== 1 ? itemLabelPlural : itemLabelSingular}
                     </Tooltip>
                 </Rectangle>
             ))}

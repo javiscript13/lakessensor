@@ -4,6 +4,7 @@ import { Container, Grid, Card, CardContent, CardActionArea, Typography } from '
 import MapIcon from '@mui/icons-material/Map';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import ScienceIcon from '@mui/icons-material/Science';
+import BiotechIcon from '@mui/icons-material/Biotech';
 
 const visualizations = [
     {
@@ -23,6 +24,12 @@ const visualizations = [
         description: "Mapa interactivo con los puntos de muestreo de laboratorio. Visualiza datos generales y resultados de cada prueba.",
         icon: <ScienceIcon sx={{ fontSize: 60, color: 'primary.main' }} />,
         path: "/datos/fisicoquimicas",
+    },
+    {
+        title: "Análisis temporal de variables fisicoquímicas",
+        description: "Analiza la distribución de conductividad, nutrientes y otras variables de laboratorio a lo largo del tiempo por zona geográfica.",
+        icon: <BiotechIcon sx={{ fontSize: 60, color: 'primary.main' }} />,
+        path: "/datos/analisis-fisicoquimico",
     },
 ];
 

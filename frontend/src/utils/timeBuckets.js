@@ -10,7 +10,13 @@ export const GRANULARITIES = {
 
 const GT_TIMEZONE = 'America/Guatemala';
 
-const toGTDate = (dateString) => new Date(new Date(dateString).toLocaleString('en-US', { timeZone: GT_TIMEZONE }));
+// dateOnly: true for plain YYYY-MM-DD values (e.g. LakeSample.samplingDate) that have no
+// time-of-day component — parsing those as UTC and reprojecting to Guatemala time (UTC-6)
+// would push them back a calendar day, so they're read as local wall-clock dates instead.
+const toGTDate = (dateString, dateOnly = false) => {
+    if (dateOnly) return new Date(`${dateString}T00:00:00`);
+    return new Date(new Date(dateString).toLocaleString('en-US', { timeZone: GT_TIMEZONE }));
+};
 
 const isoWeekStart = (date) => {
     const d = new Date(date);
@@ -19,8 +25,8 @@ const isoWeekStart = (date) => {
     return `${d.getFullYear()}-W${String(Math.ceil(d.getDate() / 7)).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 };
 
-export const getTimeBucketKey = (dateString, granularity) => {
-    const d = toGTDate(dateString);
+export const getTimeBucketKey = (dateString, granularity, dateOnly = false) => {
+    const d = toGTDate(dateString, dateOnly);
     const h = d.getHours();
     switch (granularity) {
         case GRANULARITIES.TIME_OF_DAY:
@@ -49,29 +55,20 @@ const sortedCategories = (keys, granularity) => {
     return [...keys].sort();
 };
 
-// metric: 'ph' | 'waterTemp' | 'secchiDepth'
-export const buildBoxplotSeries = (sessions, metric, granularity) => {
+// Buckets `items` by time (via getTime) and value (via getValue), then computes
+// per-bucket boxplot stats. Shared by buildBoxplotSeries and
+// buildPhysicoChemicalBoxplotSeries — they only differ in how time/value are read.
+const buildSeriesFromItems = (items, granularity, getTime, getValue, dateOnly = false) => {
     const buckets = new Map();
 
-    for (const session of sessions) {
-        if (metric === 'secchiDepth') {
-            const val = session.analogReading?.secchiDepth;
-            if (val == null) continue;
-            const key = getTimeBucketKey(session.oldestReadingTime, granularity);
-            if (!buckets.has(key)) buckets.set(key, []);
-            buckets.get(key).push(Number(val));
-        } else {
-            const metricToAvg = {
-                ph:        'avgPh',
-                waterTemp: 'avgWaterTemp',
-            };
-            const avgField = metricToAvg[metric];
-            const val = avgField ? session[avgField] : null;
-            if (val == null) continue;
-            const key = getTimeBucketKey(session.oldestReadingTime, granularity);
-            if (!buckets.has(key)) buckets.set(key, []);
-            buckets.get(key).push(Number(val));
-        }
+    for (const item of items) {
+        const val = getValue(item);
+        if (val == null) continue;
+        const time = getTime(item);
+        if (!time) continue;
+        const key = getTimeBucketKey(time, granularity, dateOnly);
+        if (!buckets.has(key)) buckets.set(key, []);
+        buckets.get(key).push(Number(val));
     }
 
     const categories = sortedCategories(new Set(buckets.keys()), granularity);
@@ -85,4 +82,26 @@ export const buildBoxplotSeries = (sessions, metric, granularity) => {
     }
 
     return { categories, boxData, counts };
+};
+
+// metric: 'ph' | 'waterTemp' | 'secchiDepth'
+export const buildBoxplotSeries = (sessions, metric, granularity) => {
+    const getTime = (session) => session.oldestReadingTime;
+    const getValue = (session) => {
+        if (metric === 'secchiDepth') return session.analogReading?.secchiDepth;
+        const metricToAvg = {
+            ph:        'avgPh',
+            waterTemp: 'avgWaterTemp',
+        };
+        const avgField = metricToAvg[metric];
+        return avgField ? session[avgField] : null;
+    };
+    return buildSeriesFromItems(sessions, granularity, getTime, getValue);
+};
+
+// metric: any physicochemical field on LakeSample, e.g. 'conductivity', 'nitrates', ...
+export const buildPhysicoChemicalBoxplotSeries = (samples, metric, granularity) => {
+    const getTime = (sample) => sample.samplingDate;
+    const getValue = (sample) => sample[metric];
+    return buildSeriesFromItems(samples, granularity, getTime, getValue, true);
 };

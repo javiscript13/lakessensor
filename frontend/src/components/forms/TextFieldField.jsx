@@ -2,8 +2,9 @@ import { Controller } from 'react-hook-form';
 import { TextField } from '@mui/material';
 
 const itemStyle = {
-  width: { xs: '100%', sm: '75%' },
-  margin: '10px',
+  width: '100%',
+  marginTop: '10px',
+  marginBottom: '10px',
 }
 
 export const TextFieldField = ({ name, control, label, rules, sx, type, ...props }) => {

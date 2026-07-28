@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext"
 import {
-    Container,
     Box,
     Typography,
     TextField,
@@ -12,6 +11,7 @@ import {
 CircularProgress,
 } from "@mui/material";
 import { loginUser } from '../services/apiService';
+import { contentWidthSx } from '../styles/pageLayout';
 
 const LoginPage = ({ redirectPath = "/"}) => {
     const navigate = useNavigate();
@@ -42,7 +42,7 @@ const LoginPage = ({ redirectPath = "/"}) => {
     };
 
   return (
-    <Container maxWidth="xs">
+    <Box sx={{ ...contentWidthSx, maxWidth: 400 }}>
       <Box sx={{ mt: 10, textAlign: "center" }}>
         <Typography variant="h4" mb={4}>
           Iniciar Sesión
@@ -84,7 +84,7 @@ const LoginPage = ({ redirectPath = "/"}) => {
           </Button>
         </form>
       </Box>
-    </Container>
+    </Box>
   );
 }
 

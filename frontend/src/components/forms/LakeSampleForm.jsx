@@ -11,8 +11,8 @@ import {
 
 const gridStyles = {
     paddingTop: 20,
-    paddingLeft: { xs: 10, lg: 50 },
-    paddingRight: { xs: 10, lg: 50 },
+    paddingLeft: { xs: 10, lg: 30, xl: 50 },
+    paddingRight: { xs: 10, lg: 30, xl: 50 },
 };
 
 const sectionTitleStyle = {
@@ -21,14 +21,14 @@ const sectionTitleStyle = {
     marginBottom: '4px',
 };
 
+const firstSectionTitleStyle = {
+    ...sectionTitleStyle,
+    marginTop: '32px',
+};
+
 const dividerStyle = {
     width: '100%',
     marginBottom: '12px',
-};
-
-const selectSx = {
-    width: { xs: '100%', sm: '75%' },
-    margin: '10px',
 };
 
 const PHYSICOCHEMICAL_FIELDS = [
@@ -187,11 +187,9 @@ const LakeSampleForm = () => {
                     label="Muestra existente"
                     control={control}
                     options={[{ value: '', label: 'Nueva muestra' }, ...samples]}
-                    fullWidth={false}
-                    sx={selectSx}
                 />
 
-                <Typography variant="h6" sx={sectionTitleStyle}>Información de muestra</Typography>
+                <Typography variant="h5" sx={firstSectionTitleStyle}>Información de muestra</Typography>
                 <Divider sx={dividerStyle} />
 
                 <SelectField
@@ -202,8 +200,6 @@ const LakeSampleForm = () => {
                     error={!!errors.lake}
                     helperText={errors.lake?.message}
                     rules={{ required: "El lago es obligatorio" }}
-                    fullWidth={false}
-                    sx={selectSx}
                 />
                 <TextFieldField
                     name="samplingDate"
@@ -277,7 +273,7 @@ const LakeSampleForm = () => {
                     minRows={3}
                 />
 
-                <Typography variant="h6" sx={sectionTitleStyle}>Variables fisicoquímicas</Typography>
+                <Typography variant="h5" sx={sectionTitleStyle}>Variables fisicoquímicas</Typography>
                 <Divider sx={dividerStyle} />
 
                 {PHYSICOCHEMICAL_FIELDS.map(({ name, label, unit, min, max }) => (

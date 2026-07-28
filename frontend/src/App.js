@@ -16,8 +16,23 @@ const theme = createTheme({
       main: "#2a942c",
       contrastText: "#2a9294"
     }
+  },
+  typography: {
+    fontFamily: "'Atkinson Hyperlegible', 'Segoe UI', sans-serif",
+    h1: { fontFamily: "'Merriweather', 'Georgia', serif" },
+    h2: { fontFamily: "'Merriweather', 'Georgia', serif" },
+    h3: { fontFamily: "'Merriweather', 'Georgia', serif" },
+    h4: { fontFamily: "'Merriweather', 'Georgia', serif" },
+    h5: { fontFamily: "'Merriweather', 'Georgia', serif" },
+    h6: { fontFamily: "'Merriweather', 'Georgia', serif" },
+    subtitle1: { fontFamily: "'Merriweather', 'Georgia', serif" },
+    subtitle2: { fontFamily: "'Merriweather', 'Georgia', serif" },
+    body1: { fontSize: '1.1rem' },
+    button: { textTransform: 'none' }
   }
 });
+
+theme.typography.body1[theme.breakpoints.up('md')] = { fontSize: '1.25rem' };
 
 function App() {
   return (

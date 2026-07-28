@@ -12,8 +12,8 @@ import { postAnalogData, patchAnalogData, getUserReadings } from '../../services
 
 const gridStyles = {
     paddingTop: 20,
-    paddingLeft: { xs: 10, lg: 50 },
-    paddingRight: { xs: 10, lg: 50 },
+    paddingLeft: { xs: 10, lg: 30, xl: 50 },
+    paddingRight: { xs: 10, lg: 30, xl: 50 },
 };
 
 const gridItem = {

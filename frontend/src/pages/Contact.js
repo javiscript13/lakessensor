@@ -1,8 +1,9 @@
 import React from 'react';
 import { Paper, Typography } from '@mui/material';
+import { contentWidthSx } from '../styles/pageLayout';
 
 const mainParagraph = {
-  mx: { xs: 1, sm: 3, md: 5 },
+  ...contentWidthSx,
   my: { xs: 1, sm: 2, md: 3 },
   p: { xs: 2, sm: 3, md: 5 },
 };

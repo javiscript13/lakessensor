@@ -15,7 +15,7 @@ const Menu = () => {
 
     const pages = [
         {
-            name: "Home",
+            name: "Inicio",
             target: "/"
         },
         {
@@ -45,8 +45,8 @@ const Menu = () => {
     return (
         <AppBar position="sticky">
             <Toolbar variant="regular" sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Container sx={{ display: 'flex', flexDirection: 'row' }}>
-                    <Box sx={{ display: { xs: 'flex' }, mr: 1 }} >
+                <Container sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', minHeight: 64 }}>
+                    <Box sx={{ display: { xs: 'flex' }, alignItems: 'center', mr: 1 }} >
                         <Link to="/" style={{ marginTop: 8, marginBottom: 8 }}>
                             <img src="https://via.placeholder.com/60" alt="Logo" />
                         </Link>
@@ -65,7 +65,7 @@ const Menu = () => {
                                 key={page.name}
                                 component={Link}
                                 to={page.target}
-                                sx={{ my: 2, color: 'white', display: 'block' }}
+                                sx={{ my: 2, color: 'white', display: 'block', fontSize: '1.2rem' }}
                             >
                                 {page.name}
                             </Button>
@@ -80,7 +80,7 @@ const Menu = () => {
                                 <Button
                                     key={page.name}
                                     href={page.target}
-                                    sx={{ color: 'white', display: 'flex', justifyContent: 'center' }}
+                                    sx={{ color: 'white', display: 'flex', justifyContent: 'center', fontSize: '1.3rem' }}
                                 >
                                     {page.name}
                                 </Button>

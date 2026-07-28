@@ -71,6 +71,15 @@ export const getLakes = async () => {
     }
 };
 
+export const getAllLakeSamples = async () => {
+    try {
+        const response = await axiosInstance.get('/sensor/all-lake-samples');
+        return response.data;
+    } catch (error) {
+        throw new Error('Error getting all lake samples', error);
+    }
+};
+
 export const getLakeSamples = async () => {
     try {
         const response = await axiosInstance.get('/sensor/lake-samples');

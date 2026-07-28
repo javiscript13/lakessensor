@@ -7,6 +7,7 @@ const aboutModule = import(/* webpackPrefetch: true */ './pages/About');
 const dataHubModule = import(/* webpackPrefetch: true */ './pages/DataHub');
 const dataModule = import(/* webpackPrefetch: true */ './pages/Data');
 const dataAnalysisModule = import(/* webpackPrefetch: true */ './pages/DataAnalysis');
+const physicoChemicalDataModule = import(/* webpackPrefetch: true */ './pages/PhysicoChemicalData');
 const dataFormModule = import(/* webpackPrefetch: true */ './pages/DataForm');
 const ressourcesModule = import(/* webpackPrefetch: true */ './pages/Ressources');
 const contactModule = import(/* webpackPrefetch: true */ './pages/Contact');
@@ -17,6 +18,7 @@ const About = React.lazy(() => aboutModule);
 const DataHub = React.lazy(() => dataHubModule);
 const Data = React.lazy(() => dataModule);
 const DataAnalysis = React.lazy(() => dataAnalysisModule);
+const PhysicoChemicalData = React.lazy(() => physicoChemicalDataModule);
 const DataForm = React.lazy(() => dataFormModule);
 const Ressources = React.lazy(() => ressourcesModule);
 const Contact = React.lazy(() => contactModule);
@@ -31,6 +33,7 @@ const AppRoutes = () => {
                 <Route path="/datos" element={<DataHub />} />
                 <Route path="/datos/lecturas" element={<Data />} />
                 <Route path="/datos/analisis" element={<DataAnalysis />} />
+                <Route path="/datos/fisicoquimicas" element={<PhysicoChemicalData />} />
                 <Route path="/form" element={
                     <PrivateRoute>
                         <DataForm/>

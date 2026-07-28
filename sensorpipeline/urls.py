@@ -8,6 +8,7 @@ urlpatterns = [
     path("lakes", views.LakeListView.as_view(), name="lakes"),
     path("lake-samples", views.LakeSampleView.as_view(), name="lake-samples"),
     path("lake-samples/<int:pk>", views.LakeSampleView.as_view(), name="lake-sample-detail"),
+    path("all-lake-samples", views.AllLakeSamples.as_view(), name="all-lake-samples"),
     path("user-readings", views.UserReadings.as_view(), name="user-readings"),
     path("all-readings", views.AllReadings.as_view(), name="all-readings"),
     path("session-readings/<int:pk>", views.SessionReadings.as_view(), name="session-readings"),

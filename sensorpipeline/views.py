@@ -89,6 +89,11 @@ class LakeSampleView(generics.ListCreateAPIView,
         serializer.save(created_by=self.request.user)
 
 
+class AllLakeSamples(generics.ListAPIView):
+    queryset = LakeSample.objects.all().select_related('lake')
+    serializer_class = LakeSampleSerializer
+
+
 class UserReadings(generics.ListAPIView):
     serializer_class = ReadingSessionMapSerializer
     permission_classes = [IsAuthenticated]

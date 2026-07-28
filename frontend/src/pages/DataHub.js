@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Grid, Card, CardContent, CardActionArea, Typography } from '@mui/material';
 import MapIcon from '@mui/icons-material/Map';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
+import ScienceIcon from '@mui/icons-material/Science';
 
 const visualizations = [
     {
@@ -16,6 +17,12 @@ const visualizations = [
         description: "Analiza la distribución de pH, temperatura y disco Secchi a lo largo del tiempo por zona geográfica.",
         icon: <QueryStatsIcon sx={{ fontSize: 60, color: 'primary.main' }} />,
         path: "/datos/analisis",
+    },
+    {
+        title: "Variables fisicoquímicas",
+        description: "Mapa interactivo con los puntos de muestreo de laboratorio. Visualiza datos generales y resultados de cada prueba.",
+        icon: <ScienceIcon sx={{ fontSize: 60, color: 'primary.main' }} />,
+        path: "/datos/fisicoquimicas",
     },
 ];
 

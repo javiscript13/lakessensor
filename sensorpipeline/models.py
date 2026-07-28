@@ -26,6 +26,8 @@ class Device(models.Model):
     primary_lake = models.ForeignKey(
         Lake, on_delete=models.PROTECT, related_name="devices", null=True, blank=True
     )
+    default_latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    default_longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
 
     def __str__(self):
         return f"{self.mac}"

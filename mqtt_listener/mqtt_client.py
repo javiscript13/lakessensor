@@ -72,6 +72,7 @@ def outbox_worker():
 
 def on_connect(client, userdata, flags, rc):
     print(f"Connected with result code {rc}")  # noqa: T201
+    client.subscribe(os.environ["MQTT_TOPIC"], qos=1)
 
 
 def on_message(client, userdata, msg):
@@ -119,6 +120,17 @@ client = mqtt.Client(
 )
 client.on_connect = on_connect
 client.on_message = on_message
-client.connect(os.environ["MQTT_SERVER"], int(os.environ["MQTT_PORT"]))
-client.subscribe(os.environ["MQTT_TOPIC"], qos=1)
+client.reconnect_delay_set(min_delay=1, max_delay=120)
+
+CONNECT_RETRY_MAX_DELAY = 60
+delay = 1
+while True:
+    try:
+        client.connect(os.environ["MQTT_SERVER"], int(os.environ["MQTT_PORT"]))
+        break
+    except OSError as e:
+        print(f"Initial MQTT connect failed: {e}. Retrying in {delay}s")  # noqa: T201
+        time.sleep(delay)
+        delay = min(delay * 2, CONNECT_RETRY_MAX_DELAY)
+
 client.loop_forever()

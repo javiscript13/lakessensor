@@ -50,9 +50,13 @@ def on_message(client, userdata, msg):
         print(f"Django server not available after 3 attempts: {last_error}")  # noqa: T201
 
 
-client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
+client = mqtt.Client(
+    mqtt.CallbackAPIVersion.VERSION1,
+    client_id=os.environ["MQTT_CLIENT_ID"],
+    clean_session=False,
+)
 client.on_connect = on_connect
 client.on_message = on_message
 client.connect(os.environ["MQTT_SERVER"], int(os.environ["MQTT_PORT"]))
-client.subscribe(os.environ["MQTT_TOPIC"])
+client.subscribe(os.environ["MQTT_TOPIC"], qos=1)
 client.loop_forever()

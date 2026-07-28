@@ -164,6 +164,8 @@ typings/
 
 
 
+mqtt_listener/outbox.db
+
 ### Windows template
 # Windows thumbnail cache files
 Thumbs.db

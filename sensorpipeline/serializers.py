@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.utils import timezone
 from .models import Reading, AnalogReading, ReadingSession, LakeSample, Lake
 
 
@@ -24,6 +25,24 @@ class LakeSampleSerializer(serializers.ModelSerializer):
     class Meta:
         model = LakeSample
         fields = '__all__'
+
+    def validate(self, data):
+        sampling_date = data.get(
+            'sampling_date', getattr(self.instance, 'sampling_date', None)
+        )
+        analysis_date = data.get(
+            'analysis_date', getattr(self.instance, 'analysis_date', None)
+        )
+
+        if sampling_date and sampling_date > timezone.localdate():
+            raise serializers.ValidationError({
+                'sampling_date': 'La fecha de muestreo no puede ser en el futuro.'
+            })
+        if sampling_date and analysis_date and analysis_date < sampling_date:
+            raise serializers.ValidationError({
+                'analysis_date': 'La fecha de análisis no puede ser anterior a la fecha de muestreo.'
+            })
+        return data
 
 class ReadingSerializer(serializers.ModelSerializer):
     device_name = serializers.CharField(source="device.nickname", read_only=True)

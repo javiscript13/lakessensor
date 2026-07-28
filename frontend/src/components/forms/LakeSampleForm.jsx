@@ -62,6 +62,29 @@ const decimalRule = (min, max, decimalPlaces = 2) => ({
 // lat/long: DecimalField(max_digits=9, decimal_places=6) — no min/max validators on the backend.
 const coordinateRule = decimalRule(undefined, undefined, 6);
 
+// YYYY-MM-DD in local time, matching the <input type="date"> value format.
+const todayISO = () => {
+    const now = new Date();
+    const offset = now.getTimezoneOffset();
+    return new Date(now.getTime() - offset * 60000).toISOString().slice(0, 10);
+};
+
+const samplingDateRule = {
+    required: "La fecha de muestreo es obligatoria",
+    validate: (value) => {
+        if (!value) return true;
+        return value <= todayISO() || "La fecha de muestreo no puede ser en el futuro";
+    },
+};
+
+const analysisDateRule = {
+    required: "La fecha de análisis es obligatoria",
+    validate: (value, formValues) => {
+        if (!value || !formValues.samplingDate) return true;
+        return value >= formValues.samplingDate || "La fecha de análisis no puede ser anterior a la fecha de muestreo";
+    },
+};
+
 const DEFAULT_VALUES = {
     existingSample: '',
     lake: '',
@@ -84,7 +107,7 @@ const DEFAULT_VALUES = {
 };
 
 const LakeSampleForm = () => {
-    const { handleSubmit, control, formState: { errors }, reset } = useForm({
+    const { handleSubmit, control, formState: { errors }, reset, trigger } = useForm({
         defaultValues: DEFAULT_VALUES,
         mode: 'onChange',
     });
@@ -97,6 +120,11 @@ const LakeSampleForm = () => {
     const [selectedSample, setSelectedSample] = useState(null);
 
     const existingSampleValue = useWatch({ control, name: 'existingSample' });
+    const samplingDateValue = useWatch({ control, name: 'samplingDate' });
+
+    useEffect(() => {
+        trigger('analysisDate');
+    }, [samplingDateValue, trigger]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -209,7 +237,8 @@ const LakeSampleForm = () => {
                     InputLabelProps={{ shrink: true }}
                     error={!!errors.samplingDate}
                     helperText={errors.samplingDate?.message}
-                    rules={{ required: "La fecha de muestreo es obligatoria" }}
+                    rules={samplingDateRule}
+                    inputProps={{ max: todayISO() }}
                 />
                 <TextFieldField
                     name="analysisDate"
@@ -219,7 +248,7 @@ const LakeSampleForm = () => {
                     InputLabelProps={{ shrink: true }}
                     error={!!errors.analysisDate}
                     helperText={errors.analysisDate?.message}
-                    rules={{ required: "La fecha de análisis es obligatoria" }}
+                    rules={analysisDateRule}
                 />
                 <TextFieldField
                     name="laboratory"

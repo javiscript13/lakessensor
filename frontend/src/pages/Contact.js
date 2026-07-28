@@ -1,24 +1,21 @@
 import React from 'react';
-import { Paper, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { contentWidthSx } from '../styles/pageLayout';
 
-const mainParagraph = {
+const sectionSpacing = {
   ...contentWidthSx,
-  my: { xs: 1, sm: 2, md: 3 },
+  mt: { xs: 3, sm: 4, md: 6 },
+  mb: { xs: 3, sm: 4, md: 6 },
   p: { xs: 2, sm: 3, md: 5 },
 };
 
 const Contact = () => {
     return (
         <div>
-        <Paper 
-          elevation={3}  
-          sx={mainParagraph}
-        >
-          <Typography variant="h4">Contacto</Typography>
+        <Box sx={sectionSpacing}>
+          <Typography variant="h4" sx={{ mb: 4 }}>Contacto</Typography>
           <Typography variant="body1">Para más información sobre cómo participar o aprender más sobre el proyecto, por favor contacte a la coordinación del proyecto a través de ducuchu@gmail.com</Typography>
-
-        </Paper>
+        </Box>
 
       </div>
     );

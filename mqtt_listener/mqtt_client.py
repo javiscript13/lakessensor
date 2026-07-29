@@ -10,7 +10,13 @@ import requests
 
 READINGS_ENDPOINT = os.environ["READINGS_ENDPOINT"]
 MQTT_API_KEY = os.environ["MQTT_API_KEY"]
-API_HEADERS = {"X-Api-Key": MQTT_API_KEY}
+# Tells Django this internal request is already equivalent to HTTPS, so
+# SECURE_SSL_REDIRECT doesn't 301-redirect it to https://django:8000 (which
+# has no TLS listener and would hang until timeout). Safe because Django's
+# port is never published to the host/internet - only reachable from inside
+# this docker network - so nothing outside this stack can spoof this header
+# straight to Django.
+API_HEADERS = {"X-Api-Key": MQTT_API_KEY, "X-Forwarded-Proto": "https"}
 
 OUTBOX_DB_PATH = os.environ.get("OUTBOX_DB_PATH", "/app/outbox.db")
 OUTBOX_RETRY_INTERVAL = 30  # seconds, how often to retry queued readings

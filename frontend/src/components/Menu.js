@@ -4,6 +4,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LogoutButton from './LogoutButton';
+import logo from '../assets/images/logo.png';
 
 const Menu = () => {
 
@@ -47,12 +48,12 @@ const Menu = () => {
             <Toolbar variant="regular" sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Container sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', minHeight: 64 }}>
                     <Box sx={{ display: { xs: 'flex' }, alignItems: 'center', mr: 1 }} >
-                        <Link to="/" style={{ marginTop: 8, marginBottom: 8 }}>
-                            <img src="https://via.placeholder.com/60" alt="Logo" />
+                        <Link to="/" style={{ marginTop: 8, marginBottom: 8, display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
+                            <img src={logo} alt="Lagos Abiertos" style={{ height: 48, width: 'auto' }} />
+                            <Typography sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
+                                Lagos Abiertos
+                            </Typography>
                         </Link>
-                        <Typography sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
-                            NOMBRE SITIO
-                        </Typography>
                     </Box>
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none', justifyContent: 'end' } }}>
                         <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }} onClick={handleMenuClick}>

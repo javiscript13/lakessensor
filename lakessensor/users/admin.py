@@ -13,6 +13,10 @@ if settings.DJANGO_ADMIN_FORCE_ALLAUTH:
     # https://docs.allauth.org/en/latest/common/admin.html#admin
     admin.site.login = login_required(admin.site.login)  # type: ignore[method-assign]
 
+admin.site.site_header = "Lagos Abiertos"
+admin.site.site_title = "Lagos Abiertos"
+admin.site.index_title = "Administración"
+
 
 @admin.register(User)
 class UserAdmin(auth_admin.UserAdmin):

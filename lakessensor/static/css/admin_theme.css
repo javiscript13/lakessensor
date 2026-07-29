@@ -1,0 +1,26 @@
+:root, html[data-theme="light"] {
+    --header-bg: #2a9461;
+    --button-bg: #2a9461;
+    --button-hover-bg: #21794f;
+    --default-button-bg: #2a9461;
+    --default-button-hover-bg: #21794f;
+    --font-family-primary: 'Atkinson Hyperlegible', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+div.breadcrumbs {
+    background: #2a9461;
+}
+
+.module h2, .module caption, .inline-group h2 {
+    background: #2a9461;
+}
+
+#branding h1 a:link, #branding h1 a:visited {
+    color: #ffffff;
+}
+
+#branding h1,
+h1, h2, h3,
+.module h2, .module caption, .inline-group h2 {
+    font-family: 'Merriweather', Georgia, serif;
+}

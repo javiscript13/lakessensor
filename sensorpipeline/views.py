@@ -27,7 +27,6 @@ class ReadingCreate(generics.CreateAPIView):
 
         data = request.data.copy()
         data['device'] = device.id
-        data['read_date'] = timezone.now().isoformat()
         data['device_session'] = request.data['session']
 
         if float(data.get('lat', 0)) == 0 and device.default_latitude is not None:

@@ -21,6 +21,11 @@ API_HEADERS = {"X-Api-Key": MQTT_API_KEY, "X-Forwarded-Proto": "https"}
 OUTBOX_DB_PATH = os.environ.get("OUTBOX_DB_PATH", "/app/outbox.db")
 OUTBOX_RETRY_INTERVAL = 30  # seconds, how often to retry queued readings
 
+# Without a GPS fix, the device's RTC hasn't been set from satellite time yet
+# and reports a stale/default date. Anything older than this is treated as
+# "no fix" and Django falls back to its own clock for read_date.
+GPS_MIN_VALID_YEAR = 2026
+
 
 def init_outbox():
     conn = sqlite3.connect(OUTBOX_DB_PATH)
@@ -82,14 +87,26 @@ def on_connect(client, userdata, flags, rc):
 
 
 def on_message(client, userdata, msg):
+    # Captured at receipt time, not when Django eventually processes this -
+    # if Django is down the reading sits in the outbox and gets replayed
+    # later, so this is the closest available approximation to when the
+    # reading was actually taken whenever the GPS fix isn't usable.
+    received_at = datetime.datetime.now(datetime.timezone.utc)
     try:
         reading = msg.payload.decode("UTF-8").split(",")
+        lat = float(reading[1])
+        long_ = float(reading[2])
+        # The device's GPS module supplies this as a unix epoch (UTC seconds).
+        # When there's no GPS fix, lat/long report 0 and the RTC hasn't been
+        # set from satellite time, so the epoch decodes to a stale date.
+        gps_date = datetime.datetime.fromtimestamp(int(reading[0]), tz=datetime.timezone.utc)
+        gps_date_valid = (lat != 0 or long_ != 0) and gps_date.year >= GPS_MIN_VALID_YEAR
         item = {
             "device": reading[9],
             "session": int(reading[4]),
-            "readDate": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "lat": float(reading[1]),
-            "long": float(reading[2]),
+            "readDate": (gps_date if gps_date_valid else received_at).isoformat(),
+            "lat": lat,
+            "long": long_,
             "elevation": float(reading[3]),
             "waterTemp": float(reading[5]),
             "airTemp": float(reading[6]),

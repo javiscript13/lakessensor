@@ -11,7 +11,6 @@ services:
       dockerfile: ./compose/local/mqtt/Dockerfile
     image: lakessensor_local_mqtt
     container_name: lakessensor_local_mqtt
-    restart: unless-stopped
     depends_on:
       - django
     volumes:

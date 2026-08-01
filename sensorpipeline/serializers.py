@@ -15,7 +15,8 @@ class AnalogReadingSerializer(serializers.ModelSerializer):
 
     def validate_digital_reading(self, value):
         request = self.context.get('request')
-        if request and value.device.user_id != request.user.id:
+        if (request and not request.user.is_superuser
+                and value.device.user_id != request.user.id):
             raise serializers.ValidationError(
                 'No tienes permiso sobre esta sesión.'
             )

@@ -8,7 +8,8 @@ import {
     Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
 } from '@mui/material';
 import { ToggleButtonGroupField } from './ToggleButtonGroupField';
-import { postAnalogData, patchAnalogData, getUserReadings } from '../../services/apiService';
+import { postAnalogData, patchAnalogData, getUserReadings, getAllReadings } from '../../services/apiService';
+import { useAuth } from '../../context/AuthContext';
 
 const gridStyles = {
     paddingTop: 20,
@@ -35,6 +36,7 @@ const DEFAULT_INITIALS = {
 };
 
 const DigitalReadingForm = () => {
+    const { isSuperuser } = useAuth();
     const { handleSubmit, control, setValue, formState: { errors }, reset } = useForm({
         defaultValues: DEFAULT_VALUES,
     });
@@ -61,7 +63,7 @@ const DigitalReadingForm = () => {
     const fetchReadings = async () => {
         setLoadingReadings(true);
         try {
-            const data = await getUserReadings();
+            const data = isSuperuser ? await getAllReadings() : await getUserReadings();
             readingsDataRef.current = data;
             const options = data.map((reading) => ({
                 value: reading.id,
@@ -77,7 +79,7 @@ const DigitalReadingForm = () => {
 
     useEffect(() => {
         fetchReadings();
-    }, []);
+    }, [isSuperuser]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         const reading = readingsDataRef.current.find(r => r.id === digitalReadingValue);

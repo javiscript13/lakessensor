@@ -28,6 +28,11 @@ def other_user(db):
 
 
 @pytest.fixture()
+def superuser(db):
+    return UserFactory(is_superuser=True, is_staff=True)
+
+
+@pytest.fixture()
 def device(owner):
     return Device.objects.create(
         nickname="owner-device", mac="AA:BB:CC:DD:EE:FF", model_name="v1", user=owner,
@@ -148,3 +153,43 @@ def test_can_create_analog_reading_for_own_session(owner, device):
     )
 
     assert response.status_code == HTTPStatus.CREATED
+
+
+@pytest.mark.django_db()
+def test_superuser_sees_analog_readings_from_other_users(superuser, analog_reading):
+    client = APIClient()
+    client.force_authenticate(user=superuser)
+
+    response = client.get(reverse("analog"))
+
+    assert response.status_code == HTTPStatus.OK
+    assert any(a["id"] == analog_reading.id for a in response.json())
+
+
+@pytest.mark.django_db()
+def test_superuser_can_patch_analog_reading_from_other_user(superuser, analog_reading):
+    client = APIClient()
+    client.force_authenticate(user=superuser)
+
+    response = client.patch(
+        reverse("analog-detail", args=[analog_reading.id]), {"secchiDepth": 99}, format="json",
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    analog_reading.refresh_from_db()
+    assert analog_reading.secchi_depth == 99
+
+
+@pytest.mark.django_db()
+def test_superuser_can_create_analog_reading_for_others_session(superuser, other_session):
+    client = APIClient()
+    client.force_authenticate(user=superuser)
+
+    response = client.post(
+        reverse("analog"),
+        {"digitalReading": other_session.id, "forelUleScale": 5, "secchiDepth": 10},
+        format="json",
+    )
+
+    assert response.status_code == HTTPStatus.CREATED
+    assert AnalogReading.objects.filter(digital_reading=other_session).exists()

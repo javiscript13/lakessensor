@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { logoutUser } from "../services/apiService";
+import { logoutUser, getMe } from "../services/apiService";
 
 const AuthContext = createContext();
 
@@ -15,11 +15,22 @@ const tokenIsValid = (token) => {
 export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [authLoading, setAuthLoading] = useState(true);
+    const [isSuperuser, setIsSuperuser] = useState(false);
+
+    const fetchMe = async () => {
+        try {
+            const me = await getMe();
+            setIsSuperuser(!!me.isSuperuser);
+        } catch {
+            setIsSuperuser(false);
+        }
+    };
 
     useEffect(() => {
         const token = localStorage.getItem("access");
         if (token && tokenIsValid(token)) {
             setIsAuthenticated(true);
+            fetchMe();
         } else {
             localStorage.removeItem("access");
             setIsAuthenticated(false);
@@ -30,6 +41,7 @@ export const AuthProvider = ({ children }) => {
     const login = (access) => {
         localStorage.setItem("access", access);
         setIsAuthenticated(true);
+        fetchMe();
     };
 
     const logout = async () => {
@@ -40,10 +52,11 @@ export const AuthProvider = ({ children }) => {
         }
         localStorage.removeItem("access");
         setIsAuthenticated(false);
+        setIsSuperuser(false);
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, authLoading, login, logout }}>
+        <AuthContext.Provider value={{ isAuthenticated, authLoading, isSuperuser, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

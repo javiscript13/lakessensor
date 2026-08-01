@@ -78,10 +78,12 @@ class AnalogReadingView(generics.ListCreateAPIView,
     serializer_class = AnalogReadingSerializer
 
     def get_queryset(self):
-        return AnalogReading.objects.filter(
-            digital_reading__device__user=self.request.user,
+        queryset = AnalogReading.objects.filter(
             digital_reading__deleted_at__isnull=True,
         )
+        if self.request.user.is_superuser:
+            return queryset
+        return queryset.filter(digital_reading__device__user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         # ListCreateAPIView's get() (list) wins the MRO over

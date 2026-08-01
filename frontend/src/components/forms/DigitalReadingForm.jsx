@@ -319,7 +319,7 @@ const DigitalReadingForm = () => {
                     onClick={handleSubmit(onSubmit)}
                     sx={{ marginBottom: 10 }}
                 >
-                    Enviar
+                    {selectedReading?.analogReading ? 'Guardar cambios' : 'Guardar'}
                 </Button>
                 <Snackbar
                     open={!!savingResult && savingResult.length > 0}

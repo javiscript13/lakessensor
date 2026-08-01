@@ -38,6 +38,10 @@ class LakeSampleSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({
                 'sampling_date': 'La fecha de muestreo no puede ser en el futuro.'
             })
+        if analysis_date and analysis_date > timezone.localdate():
+            raise serializers.ValidationError({
+                'analysis_date': 'La fecha de análisis no puede ser en el futuro.'
+            })
         if sampling_date and analysis_date and analysis_date < sampling_date:
             raise serializers.ValidationError({
                 'analysis_date': 'La fecha de análisis no puede ser anterior a la fecha de muestreo.'

@@ -5,6 +5,8 @@ import { TextFieldField } from "./TextFieldField";
 import {
     Grid, Button, Snackbar, CircularProgress, Typography, Divider, InputAdornment,
 } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import CloseIcon from '@mui/icons-material/Close';
 import {
     getLakes, getLakeSamples, postLakeSample, patchLakeSample,
 } from '../../services/apiService';
@@ -80,7 +82,9 @@ const samplingDateRule = {
 const analysisDateRule = {
     required: "La fecha de análisis es obligatoria",
     validate: (value, formValues) => {
-        if (!value || !formValues.samplingDate) return true;
+        if (!value) return true;
+        if (value > todayISO()) return "La fecha de análisis no puede ser en el futuro";
+        if (!formValues.samplingDate) return true;
         return value >= formValues.samplingDate || "La fecha de análisis no puede ser anterior a la fecha de muestreo";
     },
 };
@@ -118,6 +122,7 @@ const LakeSampleForm = () => {
     const samplesDataRef = useRef([]);
     const [savingResult, setSavingResult] = useState("");
     const [selectedSample, setSelectedSample] = useState(null);
+    const [searchOpen, setSearchOpen] = useState(false);
 
     const existingSampleValue = useWatch({ control, name: 'existingSample' });
     const samplingDateValue = useWatch({ control, name: 'samplingDate' });
@@ -166,7 +171,16 @@ const LakeSampleForm = () => {
 
     const clearForm = () => {
         setSelectedSample(null);
+        setSearchOpen(false);
         reset(DEFAULT_VALUES);
+    };
+
+    const toggleSearch = () => {
+        if (searchOpen) {
+            setSelectedSample(null);
+            reset(DEFAULT_VALUES);
+        }
+        setSearchOpen(!searchOpen);
     };
 
     const onSubmit = async (data) => {
@@ -210,24 +224,36 @@ const LakeSampleForm = () => {
                 direction="column"
                 sx={gridStyles}
             >
-                <SelectField
-                    name="existingSample"
-                    label="Muestra existente"
-                    control={control}
-                    options={[{ value: '', label: 'Nueva muestra' }, ...samples]}
-                />
+                <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={searchOpen ? <CloseIcon /> : <SearchIcon />}
+                    onClick={toggleSearch}
+                    sx={{ alignSelf: 'flex-end', marginBottom: 10 }}
+                >
+                    {searchOpen ? 'Cancelar búsqueda' : 'Buscar muestra existente'}
+                </Button>
+
+                {searchOpen && (
+                    <SelectField
+                        name="existingSample"
+                        label="Muestra existente"
+                        control={control}
+                        options={samples}
+                    />
+                )}
 
                 <Typography variant="h5" sx={firstSectionTitleStyle}>Información de muestra</Typography>
                 <Divider sx={dividerStyle} />
 
                 <SelectField
                     name="lake"
-                    label="Lago"
+                    label="Cuerpo de agua"
                     control={control}
                     options={lakes}
                     error={!!errors.lake}
                     helperText={errors.lake?.message}
-                    rules={{ required: "El lago es obligatorio" }}
+                    rules={{ required: "El cuerpo de agua es obligatorio" }}
                 />
                 <TextFieldField
                     name="samplingDate"
@@ -249,6 +275,7 @@ const LakeSampleForm = () => {
                     error={!!errors.analysisDate}
                     helperText={errors.analysisDate?.message}
                     rules={analysisDateRule}
+                    inputProps={{ max: todayISO() }}
                 />
                 <TextFieldField
                     name="laboratory"
@@ -325,7 +352,7 @@ const LakeSampleForm = () => {
                     onClick={handleSubmit(onSubmit)}
                     sx={{ marginTop: 10, marginBottom: 10 }}
                 >
-                    Enviar
+                    {selectedSample ? 'Guardar cambios' : 'Guardar'}
                 </Button>
                 <Snackbar
                     open={!!savingResult && savingResult.length > 0}

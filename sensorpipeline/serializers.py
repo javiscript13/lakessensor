@@ -65,6 +65,7 @@ class ReadingSessionMapSerializer(serializers.ModelSerializer):
     avg_air_temp = serializers.SerializerMethodField()
     avg_air_humidity = serializers.SerializerMethodField()
     avg_ph = serializers.SerializerMethodField()
+    is_owner = serializers.SerializerMethodField()
 
     class Meta:
         model = ReadingSession
@@ -78,6 +79,10 @@ class ReadingSessionMapSerializer(serializers.ModelSerializer):
 
     def get_reading_count(self, obj):
         return len(obj.related_readings.all())
+
+    def get_is_owner(self, obj):
+        request = self.context.get('request')
+        return bool(request and request.user.is_authenticated and obj.device.user_id == request.user.id)
 
     def get_avg_lat(self, obj):
         values = [float(r.lat) for r in obj.related_readings.all() if r.lat != 0]

@@ -60,6 +60,14 @@ export const getSessionReadings = async (sessionId) => {
     }
 };
 
+export const deleteSessionReading = async (sessionId) => {
+    try {
+        await axiosInstance.delete(`/sensor/session/${sessionId}`);
+    } catch (error) {
+        throw new Error('Error deleting session reading', error);
+    }
+};
+
 export const getLakes = async () => {
     try {
         const response = await axiosInstance.get('/sensor/lakes');

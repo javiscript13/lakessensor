@@ -4,6 +4,7 @@ from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, BasePermission
 from rest_framework.response import Response
 from django.utils.dateparse import parse_datetime
+from django.utils import timezone
 from django.conf import settings
 from datetime import timedelta
 
@@ -105,11 +106,15 @@ class UserReadings(generics.ListAPIView):
 
     def get_queryset(self):
         return ReadingSession.objects.filter(
-            device__user=self.request.user
-        ).prefetch_related('related_readings')
+            device__user=self.request.user, deleted_at__isnull=True
+        ).select_related('device').prefetch_related('related_readings')
 
 class AllReadings(generics.ListAPIView):
-    queryset = ReadingSession.objects.all().prefetch_related('related_readings').select_related('analog_reading')
+    queryset = (
+        ReadingSession.objects.filter(deleted_at__isnull=True)
+        .select_related('device', 'analog_reading')
+        .prefetch_related('related_readings')
+    )
     serializer_class = ReadingSessionMapSerializer
 
 
@@ -118,3 +123,16 @@ class SessionReadings(generics.ListAPIView):
 
     def get_queryset(self):
         return Reading.objects.filter(reading_session_id=self.kwargs['pk'])
+
+
+class ReadingSessionDeleteView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return ReadingSession.objects.filter(
+            device__user=self.request.user, deleted_at__isnull=True
+        )
+
+    def perform_destroy(self, instance):
+        instance.deleted_at = timezone.now()
+        instance.save(update_fields=['deleted_at'])

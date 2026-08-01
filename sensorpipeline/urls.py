@@ -12,4 +12,5 @@ urlpatterns = [
     path("user-readings", views.UserReadings.as_view(), name="user-readings"),
     path("all-readings", views.AllReadings.as_view(), name="all-readings"),
     path("session-readings/<int:pk>", views.SessionReadings.as_view(), name="session-readings"),
+    path("session/<int:pk>", views.ReadingSessionDeleteView.as_view(), name="session-delete"),
 ]

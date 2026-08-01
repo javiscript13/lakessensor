@@ -35,6 +35,7 @@ class Device(models.Model):
 class ReadingSession(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
+    deleted_at = models.DateTimeField(null=True, blank=True, default=None)
 
     def __str__(self):
         return f"{self.id}"

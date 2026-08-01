@@ -2,19 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { Marker, Popup } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import Map from '../components/Map';
-import { getAllReadings, getSessionReadings } from '../services/apiService';
+import { getAllReadings, getSessionReadings, deleteSessionReading } from '../services/apiService';
 import {
     Button, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
-    Table, TableHead, TableBody, TableRow, TableCell,
+    Table, TableHead, TableBody, TableRow, TableCell, Snackbar,
 } from '@mui/material';
 
 
 const fmt = (val) => val != null ? val : '—';
 
-const SessionMarker = ({ session }) => {
+const SessionMarker = ({ session, onDeleted }) => {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [readings, setReadings] = useState([]);
     const [loadingReadings, setLoadingReadings] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [deleteError, setDeleteError] = useState('');
 
     const handleOpenDialog = async () => {
         setDialogOpen(true);
@@ -24,6 +27,20 @@ const SessionMarker = ({ session }) => {
             setReadings(data);
         } finally {
             setLoadingReadings(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        setDeleting(true);
+        try {
+            await deleteSessionReading(session.id);
+            onDeleted(session.id);
+        } catch (error) {
+            console.error('Error deleting session', error);
+            setDeleteError('No se pudo borrar la sesión. Intenta de nuevo.');
+        } finally {
+            setDeleting(false);
+            setDeleteDialogOpen(false);
         }
     };
 
@@ -64,6 +81,18 @@ const SessionMarker = ({ session }) => {
                     >
                         Ver datos completos
                     </Button>
+
+                    {session.isOwner && (
+                        <Button
+                            size="small"
+                            variant="outlined"
+                            color="error"
+                            style={{ marginTop: 10, marginLeft: 8 }}
+                            onClick={() => setDeleteDialogOpen(true)}
+                        >
+                            Borrar sesión
+                        </Button>
+                    )}
                 </Popup>
             </Marker>
 
@@ -107,6 +136,29 @@ const SessionMarker = ({ session }) => {
                     <Button onClick={() => setDialogOpen(false)}>Cerrar</Button>
                 </DialogActions>
             </Dialog>
+
+            <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+                <DialogTitle>Borrar sesión {session.id}</DialogTitle>
+                <DialogContent>
+                    ¿Seguro que quieres borrar esta sesión? Esta acción no se puede deshacer.
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setDeleteDialogOpen(false)} disabled={deleting}>
+                        Cancelar
+                    </Button>
+                    <Button onClick={handleDelete} color="error" disabled={deleting}>
+                        Borrar
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Snackbar
+                open={!!deleteError}
+                message={deleteError}
+                autoHideDuration={3000}
+                onClose={() => setDeleteError('')}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            />
         </>
     );
 };
@@ -147,7 +199,11 @@ const Data = () => {
             <Map center={[15, -90.5]} zoom={9} bounds={bounds.length > 0 ? bounds : null}>
                 <MarkerClusterGroup>
                     {sessions.map(session => (
-                        <SessionMarker key={session.id} session={session} />
+                        <SessionMarker
+                            key={session.id}
+                            session={session}
+                            onDeleted={(id) => setSessions(prev => prev.filter(s => s.id !== id))}
+                        />
                     ))}
                 </MarkerClusterGroup>
             </Map>

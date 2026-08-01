@@ -73,6 +73,7 @@ class LakeSample(models.Model):
         on_delete=models.PROTECT,
         related_name='lake_samples'
     )
+    deleted_at = models.DateTimeField(null=True, blank=True, default=None)
     conductivity = models.DecimalField(
         max_digits=7, decimal_places=2, null=True, blank=True,
         validators=[MinValueValidator(Decimal("0")), MaxValueValidator(Decimal("10000"))]

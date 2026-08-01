@@ -112,3 +112,11 @@ export const patchLakeSample = async (id, lakeSampleData) => {
         throw new Error('Error patching lake sample', error);
     }
 };
+
+export const deleteLakeSample = async (id) => {
+    try {
+        await axiosInstance.delete(`/sensor/lake-samples/${id}`);
+    } catch (error) {
+        throw new Error('Error deleting lake sample', error);
+    }
+};

@@ -26,6 +26,11 @@ def other_user(db):
 
 
 @pytest.fixture()
+def superuser(db):
+    return UserFactory(is_superuser=True, is_staff=True)
+
+
+@pytest.fixture()
 def lake(db):
     return Lake.objects.create(name="Lago de Atitlán")
 
@@ -89,3 +94,112 @@ def test_other_user_cannot_patch_lake_sample(other_user, lake_sample):
     assert response.status_code == HTTPStatus.NOT_FOUND
     lake_sample.refresh_from_db()
     assert lake_sample.laboratory == "lab"
+
+
+@pytest.mark.django_db()
+def test_superuser_sees_lake_samples_from_other_users(superuser, lake_sample):
+    client = APIClient()
+    client.force_authenticate(user=superuser)
+
+    response = client.get(reverse("lake-samples"))
+
+    assert response.status_code == HTTPStatus.OK
+    assert any(s["id"] == lake_sample.id for s in response.json())
+
+
+@pytest.mark.django_db()
+def test_superuser_can_patch_lake_sample_from_other_user(superuser, lake_sample):
+    client = APIClient()
+    client.force_authenticate(user=superuser)
+
+    response = client.patch(
+        reverse("lake-sample-detail", args=[lake_sample.id]), {"laboratory": "fixed"}, format="json",
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    lake_sample.refresh_from_db()
+    assert lake_sample.laboratory == "fixed"
+
+
+@pytest.mark.django_db()
+def test_owner_can_soft_delete_lake_sample(owner, lake_sample):
+    client = APIClient()
+    client.force_authenticate(user=owner)
+
+    response = client.delete(reverse("lake-sample-detail", args=[lake_sample.id]))
+
+    assert response.status_code == HTTPStatus.NO_CONTENT
+    lake_sample.refresh_from_db()
+    assert lake_sample.deleted_at is not None
+
+
+@pytest.mark.django_db()
+def test_non_owner_cannot_delete_lake_sample(other_user, lake_sample):
+    client = APIClient()
+    client.force_authenticate(user=other_user)
+
+    response = client.delete(reverse("lake-sample-detail", args=[lake_sample.id]))
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    lake_sample.refresh_from_db()
+    assert lake_sample.deleted_at is None
+
+
+@pytest.mark.django_db()
+def test_superuser_can_delete_any_lake_sample(superuser, lake_sample):
+    client = APIClient()
+    client.force_authenticate(user=superuser)
+
+    response = client.delete(reverse("lake-sample-detail", args=[lake_sample.id]))
+
+    assert response.status_code == HTTPStatus.NO_CONTENT
+    lake_sample.refresh_from_db()
+    assert lake_sample.deleted_at is not None
+
+
+@pytest.mark.django_db()
+def test_anonymous_cannot_delete_lake_sample(lake_sample):
+    client = APIClient()
+
+    response = client.delete(reverse("lake-sample-detail", args=[lake_sample.id]))
+
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    lake_sample.refresh_from_db()
+    assert lake_sample.deleted_at is None
+
+
+@pytest.mark.django_db()
+def test_deleted_lake_sample_excluded_from_lists(owner, lake_sample):
+    client = APIClient()
+    client.force_authenticate(user=owner)
+    client.delete(reverse("lake-sample-detail", args=[lake_sample.id]))
+
+    own_list = client.get(reverse("lake-samples")).json()
+    assert all(s["id"] != lake_sample.id for s in own_list)
+
+    all_samples = APIClient().get(reverse("all-lake-samples")).json()
+    assert all(s["id"] != lake_sample.id for s in all_samples)
+
+
+@pytest.mark.django_db()
+def test_can_delete_field_in_all_lake_samples(owner, other_user, superuser, lake_sample):
+    client = APIClient()
+
+    client.force_authenticate(user=owner)
+    body = client.get(reverse("all-lake-samples")).json()
+    assert next(s for s in body if s["id"] == lake_sample.id)["canDelete"] is True
+    assert next(s for s in body if s["id"] == lake_sample.id)["isOwner"] is True
+
+    client.force_authenticate(user=other_user)
+    body = client.get(reverse("all-lake-samples")).json()
+    assert next(s for s in body if s["id"] == lake_sample.id)["canDelete"] is False
+    assert next(s for s in body if s["id"] == lake_sample.id)["isOwner"] is False
+
+    client.force_authenticate(user=superuser)
+    body = client.get(reverse("all-lake-samples")).json()
+    assert next(s for s in body if s["id"] == lake_sample.id)["canDelete"] is True
+    assert next(s for s in body if s["id"] == lake_sample.id)["isOwner"] is False
+
+    client.force_authenticate(user=None)
+    body = client.get(reverse("all-lake-samples")).json()
+    assert next(s for s in body if s["id"] == lake_sample.id)["canDelete"] is False

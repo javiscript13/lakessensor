@@ -30,10 +30,22 @@ class LakeSerializer(serializers.ModelSerializer):
 class LakeSampleSerializer(serializers.ModelSerializer):
     created_by = serializers.PrimaryKeyRelatedField(read_only=True)
     lake_name = serializers.CharField(source='lake.name', read_only=True)
+    is_owner = serializers.SerializerMethodField()
+    can_delete = serializers.SerializerMethodField()
 
     class Meta:
         model = LakeSample
         fields = '__all__'
+
+    def get_is_owner(self, obj):
+        request = self.context.get('request')
+        return bool(request and request.user.is_authenticated and obj.created_by_id == request.user.id)
+
+    def get_can_delete(self, obj):
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+        return request.user.is_superuser or obj.created_by_id == request.user.id
 
     def validate(self, data):
         sampling_date = data.get(

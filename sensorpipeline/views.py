@@ -1,6 +1,6 @@
 from .models import Reading, AnalogReading, Device, ReadingSession, LakeSample, Lake
 from .serializers import ReadingSerializer, AnalogReadingSerializer, ReadingSessionSerializer, ReadingSessionMapSerializer, LakeSampleSerializer, LakeSerializer
-from rest_framework import generics, status
+from rest_framework import generics, mixins, status
 from rest_framework.permissions import IsAuthenticated, BasePermission
 from rest_framework.response import Response
 from django.utils.dateparse import parse_datetime
@@ -102,15 +102,23 @@ class LakeListView(generics.ListAPIView):
 
 
 class LakeSampleView(generics.ListCreateAPIView,
-                     generics.RetrieveUpdateAPIView):
+                     generics.RetrieveUpdateAPIView,
+                     mixins.DestroyModelMixin):
     permission_classes = [IsAuthenticated]
     serializer_class = LakeSampleSerializer
 
     def get_queryset(self):
-        return LakeSample.objects.filter(created_by=self.request.user)
+        queryset = LakeSample.objects.filter(deleted_at__isnull=True)
+        if self.request.user.is_superuser:
+            return queryset
+        return queryset.filter(created_by=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+    def perform_destroy(self, instance):
+        instance.deleted_at = timezone.now()
+        instance.save(update_fields=['deleted_at'])
 
     def get(self, request, *args, **kwargs):
         # Same MRO quirk as AnalogReadingView.get() above - GET on the <pk>
@@ -120,9 +128,12 @@ class LakeSampleView(generics.ListCreateAPIView,
             return self.http_method_not_allowed(request, *args, **kwargs)
         return self.list(request, *args, **kwargs)
 
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
 
 class AllLakeSamples(generics.ListAPIView):
-    queryset = LakeSample.objects.all().select_related('lake')
+    queryset = LakeSample.objects.filter(deleted_at__isnull=True).select_related('lake')
     serializer_class = LakeSampleSerializer
 
 

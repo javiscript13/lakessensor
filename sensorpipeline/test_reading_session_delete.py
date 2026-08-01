@@ -31,6 +31,11 @@ def other_user(db):
 
 
 @pytest.fixture()
+def superuser(db):
+    return UserFactory(is_superuser=True, is_staff=True)
+
+
+@pytest.fixture()
 def device(owner):
     return Device.objects.create(
         nickname="owner-device",
@@ -88,6 +93,18 @@ def test_non_owner_cannot_delete_session(other_user, session):
 
 
 @pytest.mark.django_db()
+def test_superuser_can_delete_any_session(superuser, session):
+    client = APIClient()
+    client.force_authenticate(user=superuser)
+
+    response = client.delete(reverse("session-delete", args=[session.id]))
+
+    assert response.status_code == HTTPStatus.NO_CONTENT
+    session.refresh_from_db()
+    assert session.deleted_at is not None
+
+
+@pytest.mark.django_db()
 def test_anonymous_cannot_delete_session(session):
     client = APIClient()
 
@@ -127,3 +144,24 @@ def test_is_owner_field_in_all_readings(owner, other_user, session, reading):
     client.force_authenticate(user=None)
     body = client.get(reverse("all-readings")).json()
     assert next(s for s in body if s["id"] == session.id)["isOwner"] is False
+
+
+@pytest.mark.django_db()
+def test_can_delete_field_in_all_readings(owner, other_user, superuser, session, reading):
+    client = APIClient()
+
+    client.force_authenticate(user=owner)
+    body = client.get(reverse("all-readings")).json()
+    assert next(s for s in body if s["id"] == session.id)["canDelete"] is True
+
+    client.force_authenticate(user=other_user)
+    body = client.get(reverse("all-readings")).json()
+    assert next(s for s in body if s["id"] == session.id)["canDelete"] is False
+
+    client.force_authenticate(user=superuser)
+    body = client.get(reverse("all-readings")).json()
+    assert next(s for s in body if s["id"] == session.id)["canDelete"] is True
+
+    client.force_authenticate(user=None)
+    body = client.get(reverse("all-readings")).json()
+    assert next(s for s in body if s["id"] == session.id)["canDelete"] is False

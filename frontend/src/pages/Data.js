@@ -82,7 +82,7 @@ const SessionMarker = ({ session, onDeleted }) => {
                         Ver datos completos
                     </Button>
 
-                    {session.isOwner && (
+                    {session.canDelete && (
                         <Button
                             size="small"
                             variant="outlined"

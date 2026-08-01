@@ -78,6 +78,7 @@ class ReadingSessionMapSerializer(serializers.ModelSerializer):
     avg_air_humidity = serializers.SerializerMethodField()
     avg_ph = serializers.SerializerMethodField()
     is_owner = serializers.SerializerMethodField()
+    can_delete = serializers.SerializerMethodField()
 
     class Meta:
         model = ReadingSession
@@ -95,6 +96,12 @@ class ReadingSessionMapSerializer(serializers.ModelSerializer):
     def get_is_owner(self, obj):
         request = self.context.get('request')
         return bool(request and request.user.is_authenticated and obj.device.user_id == request.user.id)
+
+    def get_can_delete(self, obj):
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+        return request.user.is_superuser or obj.device.user_id == request.user.id
 
     def get_avg_lat(self, obj):
         values = [float(r.lat) for r in obj.related_readings.all() if r.lat != 0]

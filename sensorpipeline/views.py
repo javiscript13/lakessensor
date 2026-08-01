@@ -161,9 +161,10 @@ class ReadingSessionDeleteView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return ReadingSession.objects.filter(
-            device__user=self.request.user, deleted_at__isnull=True
-        )
+        queryset = ReadingSession.objects.filter(deleted_at__isnull=True)
+        if self.request.user.is_superuser:
+            return queryset
+        return queryset.filter(device__user=self.request.user)
 
     def perform_destroy(self, instance):
         instance.deleted_at = timezone.now()

@@ -7,7 +7,7 @@ from django.utils.dateparse import parse_datetime
 from django.utils import timezone
 from django.conf import settings
 from django.db.models import Count
-from datetime import timedelta
+from datetime import timedelta, timezone as datetime_timezone
 
 
 class HasMqttApiKey(BasePermission):
@@ -46,13 +46,31 @@ class ReadingCreate(generics.CreateAPIView):
         # time, not arrival time - devices can buffer offline and send
         # readings hours late) is what actually distinguishes that case.
         read_date = parse_datetime(data['read_date']) if data.get('read_date') else None
+        if read_date and timezone.is_naive(read_date):
+            # Some clients (or older mqtt_listener versions) omit an explicit
+            # UTC offset. DRF's own DateTimeField would otherwise localize a
+            # naive value using the project's TIME_ZONE (Guatemala) instead
+            # of UTC when it saves the reading below, and comparing a
+            # naive/aware pair here would raise TypeError - crashing every
+            # reading after the first one in a session. Normalize to UTC and
+            # feed the same value back into `data` so what gets grouped here
+            # matches what actually gets persisted.
+            read_date = timezone.make_aware(read_date, datetime_timezone.utc)
+            data['read_date'] = read_date.isoformat()
         last_reading = Reading.objects.filter(
             device=device,
             device_session=data['device_session'],
         ).order_by('-id').first()
 
-        if (last_reading and read_date and
-                abs(read_date - last_reading.read_date) < self.session_max_gap):
+        try:
+            same_session = (
+                last_reading and read_date and
+                abs(read_date - last_reading.read_date) < self.session_max_gap
+            )
+        except TypeError:
+            same_session = False
+
+        if same_session:
             session = last_reading.reading_session
         else:
             session = ReadingSession.objects.create(device=device)

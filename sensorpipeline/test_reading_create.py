@@ -2,6 +2,7 @@ from decimal import Decimal
 from http import HTTPStatus
 
 import pytest
+from django.core.cache import cache
 from django.urls import reverse
 from rest_framework.test import APIClient
 
@@ -9,6 +10,14 @@ from lakessensor.users.tests.factories import UserFactory
 from sensorpipeline.models import Device, Reading
 
 API_KEY = "test-mqtt-key"
+
+
+@pytest.fixture(autouse=True)
+def _reset_throttle_cache():
+    # DRF's rate throttling stores counters in the default cache, which
+    # persists across tests in the same process - clear it so one test's
+    # requests don't trip another test's throttle limit.
+    cache.clear()
 
 
 @pytest.fixture()
@@ -146,6 +155,30 @@ def test_reading_create_splits_same_device_session_past_gap(api_client, device):
     assert response.status_code == HTTPStatus.CREATED
     readings = Reading.objects.order_by("id")
     assert readings[0].reading_session_id != readings[1].reading_session_id
+
+
+@pytest.mark.django_db()
+def test_reading_create_accepts_naive_read_date_without_crashing(api_client, device):
+    # Older mqtt_listener versions (and any misbehaving client) can send a
+    # read_date with no UTC offset. That used to crash every reading after
+    # the first one in a session (naive vs. aware datetime subtraction),
+    # silently dropping real GPS data - see the 500s in production logs.
+    api_client.post(
+        reverse("readings"),
+        reading_payload(session=7, readDate="2026-07-31 12:00:00"),
+        format="json",
+    )
+    response = api_client.post(
+        reverse("readings"),
+        reading_payload(session=7, readDate="2026-07-31 12:30:00", lat=14.9, long=-90.8),
+        format="json",
+    )
+
+    assert response.status_code == HTTPStatus.CREATED
+    readings = Reading.objects.order_by("id")
+    assert len(readings) == 2
+    assert readings[0].reading_session_id == readings[1].reading_session_id
+    assert float(readings[1].lat) == 14.9
 
 
 @pytest.mark.django_db()

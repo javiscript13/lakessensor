@@ -13,6 +13,14 @@ class AnalogReadingSerializer(serializers.ModelSerializer):
         model = AnalogReading
         fields = '__all__'
 
+    def validate_digital_reading(self, value):
+        request = self.context.get('request')
+        if request and value.device.user_id != request.user.id:
+            raise serializers.ValidationError(
+                'No tienes permiso sobre esta sesión.'
+            )
+        return value
+
 class LakeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lake

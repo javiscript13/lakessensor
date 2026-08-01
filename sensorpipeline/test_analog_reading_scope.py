@@ -46,6 +46,18 @@ def analog_reading(session):
     )
 
 
+@pytest.fixture()
+def other_device(other_user):
+    return Device.objects.create(
+        nickname="other-device", mac="11:22:33:44:55:66", model_name="v1", user=other_user,
+    )
+
+
+@pytest.fixture()
+def other_session(other_device):
+    return ReadingSession.objects.create(device=other_device)
+
+
 @pytest.mark.django_db()
 def test_get_analog_detail_is_blocked(owner, analog_reading):
     # GET on the <pk> URL used to silently fall through to the list action
@@ -106,3 +118,33 @@ def test_deleted_session_analog_reading_excluded(owner, session, analog_reading)
 
     list_response = client.get(reverse("analog"))
     assert all(a["id"] != analog_reading.id for a in list_response.json())
+
+
+@pytest.mark.django_db()
+def test_cannot_create_analog_reading_for_others_session(owner, other_session):
+    client = APIClient()
+    client.force_authenticate(user=owner)
+
+    response = client.post(
+        reverse("analog"),
+        {"digitalReading": other_session.id, "forelUleScale": 5, "secchiDepth": 10},
+        format="json",
+    )
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert not AnalogReading.objects.filter(digital_reading=other_session).exists()
+
+
+@pytest.mark.django_db()
+def test_can_create_analog_reading_for_own_session(owner, device):
+    own_session = ReadingSession.objects.create(device=device)
+    client = APIClient()
+    client.force_authenticate(user=owner)
+
+    response = client.post(
+        reverse("analog"),
+        {"digitalReading": own_session.id, "forelUleScale": 5, "secchiDepth": 10},
+        format="json",
+    )
+
+    assert response.status_code == HTTPStatus.CREATED

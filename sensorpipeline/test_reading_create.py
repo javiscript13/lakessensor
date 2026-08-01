@@ -35,6 +35,7 @@ def reading_payload(**overrides):
     payload = {
         "device": "AA:BB:CC:DD:EE:FF",
         "session": 1,
+        "readDate": "2026-07-31T12:00:00+00:00",
         "lat": 14.7,
         "long": -90.6,
         "elevation": 1560,
@@ -109,3 +110,57 @@ def test_reading_create_keeps_zero_when_device_has_no_default_location(api_clien
     reading = Reading.objects.get()
     assert float(reading.lat) == 0
     assert float(reading.long) == 0
+
+
+@pytest.mark.django_db()
+def test_reading_create_groups_same_device_session_within_gap(api_client, device):
+    api_client.post(
+        reverse("readings"),
+        reading_payload(session=7, readDate="2026-07-31T12:00:00+00:00"),
+        format="json",
+    )
+    response = api_client.post(
+        reverse("readings"),
+        reading_payload(session=7, readDate="2026-07-31T12:45:00+00:00"),
+        format="json",
+    )
+
+    assert response.status_code == HTTPStatus.CREATED
+    readings = Reading.objects.order_by("id")
+    assert readings[0].reading_session_id == readings[1].reading_session_id
+
+
+@pytest.mark.django_db()
+def test_reading_create_splits_same_device_session_past_gap(api_client, device):
+    api_client.post(
+        reverse("readings"),
+        reading_payload(session=7, readDate="2026-07-31T12:00:00+00:00"),
+        format="json",
+    )
+    response = api_client.post(
+        reverse("readings"),
+        reading_payload(session=7, readDate="2026-07-31T14:00:00+00:00"),
+        format="json",
+    )
+
+    assert response.status_code == HTTPStatus.CREATED
+    readings = Reading.objects.order_by("id")
+    assert readings[0].reading_session_id != readings[1].reading_session_id
+
+
+@pytest.mark.django_db()
+def test_reading_create_splits_different_device_session(api_client, device):
+    api_client.post(
+        reverse("readings"),
+        reading_payload(session=7, readDate="2026-07-31T12:00:00+00:00"),
+        format="json",
+    )
+    response = api_client.post(
+        reverse("readings"),
+        reading_payload(session=8, readDate="2026-07-31T12:01:00+00:00"),
+        format="json",
+    )
+
+    assert response.status_code == HTTPStatus.CREATED
+    readings = Reading.objects.order_by("id")
+    assert readings[0].reading_session_id != readings[1].reading_session_id

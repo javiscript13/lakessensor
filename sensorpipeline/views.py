@@ -3,7 +3,7 @@ from .serializers import ReadingSerializer, AnalogReadingSerializer, ReadingSess
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, BasePermission
 from rest_framework.response import Response
-from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from django.conf import settings
 from datetime import timedelta
 
@@ -17,7 +17,10 @@ class HasMqttApiKey(BasePermission):
 class ReadingCreate(generics.CreateAPIView):
     serializer_class = ReadingSerializer
     permission_classes = [HasMqttApiKey]
-    session_max_time = 5 #in minutes
+    session_max_gap = timedelta(hours=1) # readings sharing a device_session
+                                          # split into a new session if the
+                                          # gap between their read_dates
+                                          # exceeds this
 
     def create(self, request, *args, **kwargs):
         try:
@@ -34,21 +37,24 @@ class ReadingCreate(generics.CreateAPIView):
         if float(data.get('long', 0)) == 0 and device.default_longitude is not None:
             data['long'] = device.default_longitude
 
-        last_accepted_time = timezone.now() - timedelta(minutes=self.session_max_time)
+        # device_session comes from the device itself and resets whenever
+        # firmware is reflashed, so a matching device_session isn't enough
+        # on its own to prove it's the same real-world session - a stale
+        # value could resurface after a reset. The read_date gap (capture
+        # time, not arrival time - devices can buffer offline and send
+        # readings hours late) is what actually distinguishes that case.
+        read_date = parse_datetime(data['read_date']) if data.get('read_date') else None
         last_reading = Reading.objects.filter(
             device=device,
+            device_session=data['device_session'],
         ).order_by('-id').first()
-        first_session_reading_of_last = None
-        if last_reading:
-            first_session_reading_of_last = Reading.objects.filter(
-                reading_session = last_reading.reading_session
-            ).order_by('id').first()
-        if (first_session_reading_of_last and 
-            first_session_reading_of_last.read_date >= last_accepted_time):
+
+        if (last_reading and read_date and
+                abs(read_date - last_reading.read_date) < self.session_max_gap):
             session = last_reading.reading_session
         else:
             session = ReadingSession.objects.create(device=device)
-        
+
         data['reading_session'] = session.id
 
         serializer = self.get_serializer(data=data)

@@ -118,7 +118,8 @@ class LakeSampleView(generics.ListCreateAPIView,
 
     def perform_destroy(self, instance):
         instance.deleted_at = timezone.now()
-        instance.save(update_fields=['deleted_at'])
+        instance.deleted_by = self.request.user
+        instance.save(update_fields=['deleted_at', 'deleted_by'])
 
     def get(self, request, *args, **kwargs):
         # Same MRO quirk as AnalogReadingView.get() above - GET on the <pk>
@@ -181,4 +182,5 @@ class ReadingSessionDeleteView(generics.DestroyAPIView):
 
     def perform_destroy(self, instance):
         instance.deleted_at = timezone.now()
-        instance.save(update_fields=['deleted_at'])
+        instance.deleted_by = self.request.user
+        instance.save(update_fields=['deleted_at', 'deleted_by'])

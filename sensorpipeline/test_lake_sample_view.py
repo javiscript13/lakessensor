@@ -131,6 +131,7 @@ def test_owner_can_soft_delete_lake_sample(owner, lake_sample):
     assert response.status_code == HTTPStatus.NO_CONTENT
     lake_sample.refresh_from_db()
     assert lake_sample.deleted_at is not None
+    assert lake_sample.deleted_by == owner
 
 
 @pytest.mark.django_db()
@@ -155,6 +156,7 @@ def test_superuser_can_delete_any_lake_sample(superuser, lake_sample):
     assert response.status_code == HTTPStatus.NO_CONTENT
     lake_sample.refresh_from_db()
     assert lake_sample.deleted_at is not None
+    assert lake_sample.deleted_by == superuser
 
 
 @pytest.mark.django_db()

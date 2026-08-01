@@ -36,6 +36,13 @@ class ReadingSession(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     deleted_at = models.DateTimeField(null=True, blank=True, default=None)
+    deleted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='+',
+    )
 
     def __str__(self):
         return f"{self.id}"
@@ -74,6 +81,13 @@ class LakeSample(models.Model):
         related_name='lake_samples'
     )
     deleted_at = models.DateTimeField(null=True, blank=True, default=None)
+    deleted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='+',
+    )
     conductivity = models.DecimalField(
         max_digits=7, decimal_places=2, null=True, blank=True,
         validators=[MinValueValidator(Decimal("0")), MaxValueValidator(Decimal("10000"))]

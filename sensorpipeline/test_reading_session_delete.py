@@ -77,6 +77,7 @@ def test_owner_can_soft_delete_session(owner, session, reading):
     assert response.status_code == HTTPStatus.NO_CONTENT
     session.refresh_from_db()
     assert session.deleted_at is not None
+    assert session.deleted_by == owner
     assert Reading.objects.filter(id=reading.id).exists()
 
 
@@ -102,6 +103,7 @@ def test_superuser_can_delete_any_session(superuser, session):
     assert response.status_code == HTTPStatus.NO_CONTENT
     session.refresh_from_db()
     assert session.deleted_at is not None
+    assert session.deleted_by == superuser
 
 
 @pytest.mark.django_db()

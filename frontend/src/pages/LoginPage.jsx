@@ -8,6 +8,7 @@ import {
     TextField,
     Button,
     Alert,
+    Link,
 CircularProgress,
 } from "@mui/material";
 import { loginUser } from '../services/apiService';
@@ -83,6 +84,10 @@ const LoginPage = ({ redirectPath = "/"}) => {
             {loading ? <CircularProgress size={24} /> : "Entrar"}
           </Button>
         </form>
+        <Typography variant="body1" sx={{ mt: 3 }}>
+          Para crear tu usuario e ingresar datos escríbenos a{" "}
+          <Link href="mailto:ducuchu@gmail.com">ducuchu@gmail.com</Link>
+        </Typography>
       </Box>
     </Box>
   );

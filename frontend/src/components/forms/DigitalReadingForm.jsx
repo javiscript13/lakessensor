@@ -10,6 +10,7 @@ import {
 import { ToggleButtonGroupField } from './ToggleButtonGroupField';
 import { postAnalogData, patchAnalogData, getUserReadings, getAllReadings } from '../../services/apiService';
 import { useAuth } from '../../context/AuthContext';
+import { formatDateTimeGT } from '../../utils/formatDate';
 
 const gridStyles = {
     paddingTop: 20,
@@ -67,7 +68,7 @@ const DigitalReadingForm = () => {
             readingsDataRef.current = data;
             const options = data.map((reading) => ({
                 value: reading.id,
-                label: `Dispositivo ${reading.deviceName} - sesión ${new Date(reading.oldestReadingTime).toLocaleString('es-GT')} - (${(reading.analogReading ? 'con lectura análoga' : 'sin lectura análoga')})`,
+                label: `Dispositivo ${reading.deviceName} - sesión ${formatDateTimeGT(reading.oldestReadingTime)} - (${(reading.analogReading ? 'con lectura análoga' : 'sin lectura análoga')})`,
             }));
             setReadings(options);
         } catch (err) {

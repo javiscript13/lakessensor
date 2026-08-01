@@ -3,6 +3,7 @@ import { Marker, Popup } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import Map from '../components/Map';
 import { getAllReadings, getSessionReadings, deleteSessionReading } from '../services/apiService';
+import { formatDateTimeGT } from '../utils/formatDate';
 import {
     Button, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
     Table, TableHead, TableBody, TableRow, TableCell, Snackbar,
@@ -49,7 +50,7 @@ const SessionMarker = ({ session, onDeleted }) => {
             <Marker position={[session.avgLat, session.avgLong]}>
                 <Popup minWidth={280}>
                     <h3 style={{ margin: '0 0 8px', fontSize: '1.5em', fontWeight: 'bold' }}>
-                        Dispositivo {session.deviceName} — Sesión {session.id} ({new Date(session.oldestReadingTime).toLocaleString('es-GT')})
+                        Dispositivo {session.deviceName} — Sesión {session.id} ({formatDateTimeGT(session.oldestReadingTime)})
                     </h3>
 
                     <h4 style={{ margin: '8px 0 4px', fontSize: '1.2em', fontWeight: 'bold' }}>Lectura análoga</h4>
@@ -119,7 +120,7 @@ const SessionMarker = ({ session, onDeleted }) => {
                                 <TableRow><TableCell colSpan={8}>Cargando...</TableCell></TableRow>
                             ) : readings.map((r) => (
                                 <TableRow key={r.id}>
-                                    <TableCell>{new Date(r.readDate).toLocaleString('es-GT')}</TableCell>
+                                    <TableCell>{formatDateTimeGT(r.readDate)}</TableCell>
                                     <TableCell>{r.lat}</TableCell>
                                     <TableCell>{r.long}</TableCell>
                                     <TableCell>{r.elevation}</TableCell>

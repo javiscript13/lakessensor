@@ -1,4 +1,5 @@
 import { computeBoxplotStats } from './boxplotStats';
+import { GT_TIMEZONE } from './formatDate';
 
 export const GRANULARITIES = {
     TIME_OF_DAY: 'timeOfDay',
@@ -7,8 +8,6 @@ export const GRANULARITIES = {
     MONTH:       'month',
     YEAR:        'year',
 };
-
-const GT_TIMEZONE = 'America/Guatemala';
 
 // dateOnly: true for plain YYYY-MM-DD values (e.g. LakeSample.samplingDate) that have no
 // time-of-day component — parsing those as UTC and reprojecting to Guatemala time (UTC-6)

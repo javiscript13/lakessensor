@@ -75,7 +75,12 @@ class AnalogReadingView(generics.ListCreateAPIView,
                         generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = AnalogReadingSerializer
-    queryset = AnalogReading.objects.all()
+
+    def get_queryset(self):
+        return AnalogReading.objects.filter(
+            digital_reading__device__user=self.request.user,
+            digital_reading__deleted_at__isnull=True,
+        )
 
 class LakeListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]

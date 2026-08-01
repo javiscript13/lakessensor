@@ -82,6 +82,16 @@ class AnalogReadingView(generics.ListCreateAPIView,
             digital_reading__deleted_at__isnull=True,
         )
 
+    def get(self, request, *args, **kwargs):
+        # ListCreateAPIView's get() (list) wins the MRO over
+        # RetrieveUpdateAPIView's get() (retrieve-by-pk), so GET on the
+        # <pk> URL would otherwise silently list instead of retrieving.
+        # Nothing calls it that way today, so block it here rather than
+        # implementing real retrieve semantics.
+        if 'pk' in kwargs:
+            return self.http_method_not_allowed(request, *args, **kwargs)
+        return self.list(request, *args, **kwargs)
+
 class LakeListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = LakeSerializer
@@ -98,6 +108,14 @@ class LakeSampleView(generics.ListCreateAPIView,
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        # Same MRO quirk as AnalogReadingView.get() above - GET on the <pk>
+        # URL would otherwise silently list instead of retrieving. Nothing
+        # calls it that way today, so block it here for now.
+        if 'pk' in kwargs:
+            return self.http_method_not_allowed(request, *args, **kwargs)
+        return self.list(request, *args, **kwargs)
 
 
 class AllLakeSamples(generics.ListAPIView):

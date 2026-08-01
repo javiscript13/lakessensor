@@ -7,7 +7,9 @@ from django.utils import timezone
 from rest_framework.test import APIClient
 
 from lakessensor.users.tests.factories import UserFactory
-from sensorpipeline.models import AnalogReading, Device, ReadingSession
+from sensorpipeline.models import AnalogReading
+from sensorpipeline.models import Device
+from sensorpipeline.models import ReadingSession
 
 
 @pytest.fixture(autouse=True)
@@ -45,27 +47,37 @@ def analog_reading(session):
 
 
 @pytest.mark.django_db()
-def test_owner_can_retrieve_own_analog_reading(owner, session, analog_reading):
+def test_get_analog_detail_is_blocked(owner, analog_reading):
+    # GET on the <pk> URL used to silently fall through to the list action
+    # (MRO quirk from combining ListCreateAPIView + RetrieveUpdateAPIView).
+    # Nothing calls it that way, so it's blocked rather than fixed to
+    # actually retrieve by id.
     client = APIClient()
     client.force_authenticate(user=owner)
 
     response = client.get(reverse("analog-detail", args=[analog_reading.id]))
+
+    assert response.status_code == HTTPStatus.METHOD_NOT_ALLOWED
+
+
+@pytest.mark.django_db()
+def test_owner_can_list_own_analog_readings(owner, analog_reading):
+    client = APIClient()
+    client.force_authenticate(user=owner)
+
+    response = client.get(reverse("analog"))
 
     assert response.status_code == HTTPStatus.OK
     assert any(a["id"] == analog_reading.id for a in response.json())
 
 
 @pytest.mark.django_db()
-def test_non_owner_cannot_retrieve_analog_reading(other_user, analog_reading):
+def test_non_owner_does_not_see_analog_reading_in_list(other_user, analog_reading):
     client = APIClient()
     client.force_authenticate(user=other_user)
 
-    response = client.get(reverse("analog-detail", args=[analog_reading.id]))
+    response = client.get(reverse("analog"))
 
-    # GET analog-detail has a pre-existing routing quirk (tracked separately,
-    # not fixed here) where it falls through to the list action instead of
-    # retrieving by id - so this asserts the data isn't leaked through that
-    # list, not a proper 404.
     assert response.status_code == HTTPStatus.OK
     assert all(a["id"] != analog_reading.id for a in response.json())
 
@@ -94,9 +106,3 @@ def test_deleted_session_analog_reading_excluded(owner, session, analog_reading)
 
     list_response = client.get(reverse("analog"))
     assert all(a["id"] != analog_reading.id for a in list_response.json())
-
-    # see the routing-quirk note above - GET analog-detail also falls
-    # through to the list action here
-    detail_response = client.get(reverse("analog-detail", args=[analog_reading.id]))
-    assert detail_response.status_code == HTTPStatus.OK
-    assert all(a["id"] != analog_reading.id for a in detail_response.json())

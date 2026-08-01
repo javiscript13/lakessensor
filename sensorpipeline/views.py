@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone
 from django.conf import settings
+from django.db.models import Count
 from datetime import timedelta
 
 
@@ -128,9 +129,17 @@ class UserReadings(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return ReadingSession.objects.filter(
-            device__user=self.request.user, deleted_at__isnull=True
-        ).select_related('device').prefetch_related('related_readings')
+        return (
+            ReadingSession.objects.filter(
+                device__user=self.request.user, deleted_at__isnull=True
+            )
+            .select_related('device')
+            .prefetch_related('related_readings')
+            # sessions without analog data yet first (newest first within
+            # each group), so the ones still needing input are easiest to find
+            .annotate(has_analog=Count('analog_reading'))
+            .order_by('has_analog', '-id')
+        )
 
 class AllReadings(generics.ListAPIView):
     queryset = (

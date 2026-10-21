@@ -31,6 +31,7 @@ services:
       dockerfile: ./compose/production/django/Dockerfile
     image: lakessensor_production_django
     container_name: lakessensor_production_django
+    restart: unless-stopped
     volumes:
       - production_django_media:/app/lakessensor/media
     depends_on:
@@ -54,6 +55,7 @@ services:
       dockerfile: ./compose/production/postgres/Dockerfile
     image: lakessensor_production_postgres
     container_name: lakessensor_production_postgres
+    restart: unless-stopped
     volumes:
       - production_postgres_data:/var/lib/postgresql/data
       - production_postgres_data_backups:/backups
@@ -68,6 +70,7 @@ services:
         - REACT_APP_BACKEND_API=https://${API_DOMAIN}/api
     image: lakessensor_production_frontend
     container_name: lakessensor_production_frontend
+    restart: unless-stopped
     depends_on:
       - django
     environment:
